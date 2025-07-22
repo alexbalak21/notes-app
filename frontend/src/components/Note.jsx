@@ -1,4 +1,4 @@
-import {useState} from "react"
+import { useState } from "react"
 import {
   Box,
   IconButton,
@@ -11,48 +11,26 @@ import {
   Button,
   TextField,
   IconButton as MuiIconButton,
-  Chip,
   styled
 } from "@mui/material"
 import EditIcon from "@mui/icons-material/Edit"
 import DeleteIcon from "@mui/icons-material/Delete"
 import CloseIcon from "@mui/icons-material/Close"
+import CategoryChip from "./CategoryChip"
 
-// Dot for category indication (matching SelectBar)
-const Dot = styled("span")(({ color }) => ({
-  display: "inline-block",
-  width: 8,
-  height: 8,
-  borderRadius: "50%",
-  backgroundColor: color,
-  marginRight: 6,
-}))
-
-// Styled Category Badge (matching SelectBar style)
-const CategoryBadge = styled(Chip)(({ theme, color }) => ({
-  position: 'absolute',
-  top: 12,
-  right: 12,
-  backgroundColor: theme.palette.mode === 'dark' ? theme.palette.grey[800] : theme.palette.grey[100],
-  color: theme.palette.text.primary,
-  fontWeight: 400,
-  padding: '0 12px',
-  borderRadius: theme.shape.borderRadius * 2,
-  border: `1px solid ${theme.palette.divider}`,
-  '& .MuiChip-label': {
-    padding: '4px 0',
-    display: 'flex',
-    alignItems: 'center',
-  },
-  '&:hover': {
-    backgroundColor: theme.palette.mode === 'dark' ? theme.palette.grey[700] : theme.palette.grey[200],
-  },
-}))
+// Configurable character limit for note descriptions
+const DESCRIPTION_CHAR_LIMIT = 450;
 
 const Note = ({note, onUpdate, onDelete}) => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [editedNote, setEditedNote] = useState({...note})
+  const [isExpanded, setIsExpanded] = useState(false)
+  
+  const isLongDescription = note.description && note.description.length > DESCRIPTION_CHAR_LIMIT
+  const displayDescription = isLongDescription && !isExpanded 
+    ? `${note.description.substring(0, DESCRIPTION_CHAR_LIMIT)}...` 
+    : note.description
 
   const handleEdit = (event) => {
     event.stopPropagation()
@@ -98,34 +76,56 @@ const Note = ({note, onUpdate, onDelete}) => {
 
         <>
           {note.category && (
-            <CategoryBadge
-              label={
-                <Box display="flex" alignItems="center">
-                  <Dot color={
-                    note.category === 'Home' ? '#FFA726' :
-                    note.category === 'Work' ? '#42A5F5' :
-                    note.category === 'Personal' ? '#66BB6A' : '#9E9E9E'
-                  } />
-                  {note.category}
-                </Box>
-              }
-              size="small"
-            />
+            <Box sx={{ position: 'absolute', top: 12, right: 12 }}>
+              <CategoryChip 
+                category={note.category} 
+                sx={{
+                  pointerEvents: 'none', // Make it non-interactive in the note
+                  backgroundColor: theme => theme.palette.mode === 'dark' 
+                    ? theme.palette.grey[800] 
+                    : theme.palette.grey[100],
+                  '&:hover': {
+                    backgroundColor: theme => theme.palette.mode === 'dark' 
+                      ? theme.palette.grey[700] 
+                      : theme.palette.grey[200],
+                  },
+                }}
+              />
+            </Box>
           )}
           <Typography variant="h6" fontWeight="bold" gutterBottom sx={{wordBreak: "break-word", pr: note.category ? 6 : 0}}>
             {note.title || "Untitled"}
           </Typography>
-          <Typography
-            variant="body2"
-            color="text.primary"
-            sx={{
-              flexGrow: 1,
-              whiteSpace: "pre-line",
-              mt: 1,
-              wordBreak: "break-word",
-            }}>
-            {note.description}
-          </Typography>
+          <Box sx={{ flexGrow: 1, mt: 1 }}>
+            <Typography
+              variant="body2"
+              color="text.primary"
+              sx={{
+                whiteSpace: "pre-line",
+                wordBreak: "break-word",
+                mb: isLongDescription ? 1 : 0,
+              }}>
+              {displayDescription}
+            </Typography>
+            {isLongDescription && (
+              <Typography
+                variant="caption"
+                color="primary"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsExpanded(!isExpanded);
+                }}
+                sx={{
+                  cursor: 'pointer',
+                  '&:hover': { textDecoration: 'underline' },
+                  display: 'inline-block',
+                  fontWeight: 'medium',
+                }}
+              >
+                {isExpanded ? 'Show less' : 'Read more'}
+              </Typography>
+            )}
+          </Box>
         </>
       
 
@@ -191,7 +191,11 @@ const Note = ({note, onUpdate, onDelete}) => {
       {/* Edit Note Dialog */}
       <Dialog 
         open={isEditing} 
-        onClose={() => setIsEditing(false)}
+        onClose={() => {
+          setIsEditing(false);
+          // Reset expansion state when closing dialog
+          setIsExpanded(false);
+        }}
         fullWidth 
         maxWidth="sm"
       >
@@ -217,15 +221,25 @@ const Note = ({note, onUpdate, onDelete}) => {
               sx={{mb: 2}}
             />
             <TextField
-              margin="dense"
-              label="Description"
-              type="text"
               fullWidth
               multiline
-              rows={4}
-              variant="outlined"
-              value={editedNote.description || ''}
+              rows={8}
+              label="Description"
+              value={editedNote.description}
               onChange={(e) => setEditedNote({...editedNote, description: e.target.value})}
+              margin="normal"
+              variant="outlined"
+              inputProps={{
+                maxLength: DESCRIPTION_CHAR_LIMIT,
+              }}
+              helperText={`${editedNote.description?.length || 0}/${DESCRIPTION_CHAR_LIMIT} characters`}
+              FormHelperTextProps={{
+                sx: {
+                  textAlign: 'right',
+                  mx: 0,
+                  color: (editedNote.description?.length || 0) >= DESCRIPTION_CHAR_LIMIT ? 'error.main' : 'text.secondary',
+                }
+              }}
             />
           </DialogContent>
           <DialogActions sx={{px: 3, pb: 3}}>
