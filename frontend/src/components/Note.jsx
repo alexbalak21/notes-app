@@ -132,7 +132,7 @@ const Note = ({note, onUpdate, onDelete}) => {
       {/* Date and action buttons */}
       <Box display="flex" justifyContent="space-between" alignItems="center" mt={2}>
         <Typography variant="caption" color="text.secondary">
-          {new Date(note.created_at).toLocaleDateString("en-US", {
+          {new Date(note.updated_at).toLocaleDateString("en-US", {
             month: "short",
             day: "numeric",
             year: "numeric",

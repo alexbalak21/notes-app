@@ -9,7 +9,6 @@ notes = [
         "category": "Work",
         "title": "Finish report",
         "description": "Complete the quarterly report by Friday.",
-        "created_at": "2023-08-01T09:00:00Z",
         "updated_at": "2023-08-01T09:00:00Z"
     },
     {
@@ -17,7 +16,6 @@ notes = [
         "category": "Personal",
         "title": "Grocery list",
         "description": "Milk, eggs, bread, and coffee.",
-        "created_at": "2023-08-01T10:00:00Z",
         "updated_at": "2023-08-01T10:00:00Z"
     },
     {
@@ -25,7 +23,6 @@ notes = [
         "category": "Health",
         "title": "Doctor Appointment",
         "description": "Annual checkup on Monday at 3pm.",
-        "created_at": "2023-08-02T14:00:00Z",
         "updated_at": "2023-08-02T14:00:00Z"
     },
     {
@@ -33,7 +30,6 @@ notes = [
         "category": "Home",
         "title": "Fix leaky faucet",
         "description": "Call plumber or try DIY fix.",
-        "created_at": "2023-08-03T08:30:00Z",
         "updated_at": "2023-08-03T08:30:00Z"
     },
     {
@@ -41,7 +37,6 @@ notes = [
         "category": "Fitness",
         "title": "Gym schedule",
         "description": "Workout Tue, Thu, Sat — leg day on Thursday!",
-        "created_at": "2023-08-04T07:15:00Z",
         "updated_at": "2023-08-04T07:15:00Z"
     },
     {
@@ -49,7 +44,6 @@ notes = [
         "category": "Travel",
         "title": "Paris itinerary",
         "description": "Book Eiffel Tower tickets, explore Le Marais.",
-        "created_at": "2023-08-05T11:45:00Z",
         "updated_at": "2023-08-05T11:45:00Z"
     },
     {
@@ -57,7 +51,6 @@ notes = [
         "category": "Study",
         "title": "Python course",
         "description": "Finish modules 4 and 5 by Sunday.",
-        "created_at": "2023-08-06T13:00:00Z",
         "updated_at": "2023-08-06T13:00:00Z"
     },
     {
@@ -65,7 +58,6 @@ notes = [
         "category": "Events",
         "title": "Birthday party",
         "description": "Emma’s birthday at the park on Saturday.",
-        "created_at": "2023-08-07T15:20:00Z",
         "updated_at": "2023-08-07T15:20:00Z"
     },
     {
@@ -73,15 +65,13 @@ notes = [
         "category": "Finance",
         "title": "Pay bills",
         "description": "Electricity, water, and internet due next week.",
-        "created_at": "2023-08-08T09:10:00Z",
         "updated_at": "2023-08-08T09:10:00Z"
     },
     {
         "id": 10,
         "category": "Ideas",
         "title": "Startup pitch",
-        "description": "lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. More info here. lorem labore et dolore magna aliqua ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. More info here. lorem labore et dolore magna aliqua ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. More info here. lorem labore et dolore magna aliqua ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-        "created_at": "2023-08-09T17:40:00Z",
+        "description": "lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. More info here. lorem labore et dolore magna aliqua ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. More info here. lorem labore et dolore magna aliqua ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. More info here. lorem labore et dolore magna aliqua ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip",
         "updated_at": "2023-08-09T17:40:00Z"
     }
 ]
@@ -131,7 +121,6 @@ def add_note():
         "category": data.get("category", "Uncategorized"),
         "title": data.get("title", ""),
         "description": data.get("description", ""),
-        "created_at": now,
         "updated_at": now
     }
     notes.append(new_note)
