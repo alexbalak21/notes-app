@@ -143,7 +143,7 @@ const Home = () => {
   const handleCloseAddNote = () => setIsAddNoteOpen(false)
 
   return (
-    <Box sx={{bgcolor: "bg", minHeight: "100vh"}}>
+    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
       <Container maxWidth="lg" sx={{pt: 2}}>
         {/* 
           SearchBar Component
