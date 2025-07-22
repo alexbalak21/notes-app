@@ -1,9 +1,17 @@
 import {Box, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, IconButton, MenuItem, FormControl, InputLabel, Select, InputAdornment} from "@mui/material"
 import {Close as CloseIcon, Add as AddIcon} from "@mui/icons-material"
-import {useState, useEffect} from "react"
+import {useState, useEffect, useRef} from "react";
+import axios from 'axios';
+
+// Category configuration with colors
+const categoryConfig = {
+  "Home": { color: "#4caf50" }, // Green
+  "Work": { color: "#2196f3" },  // Blue
+  "Personal": { color: "#9c27b0" } // Purple
+};
 
 // Default categories
-const defaultCategories = ["Home", "Work", "Personal"];
+const defaultCategories = Object.keys(categoryConfig);
 
 const AddNote = ({open, onClose, onAddNote}) => {
   const [title, setTitle] = useState("")
@@ -28,6 +36,10 @@ const AddNote = ({open, onClose, onAddNote}) => {
   const handleAddNewCategory = () => {
     if (newCategory.trim() && !categories.includes(newCategory)) {
       const updatedCategories = [...categories, newCategory]
+      // Add default color for new categories
+      if (!categoryConfig[newCategory]) {
+        categoryConfig[newCategory] = { color: '#757575' }; // Default gray
+      }
       setCategories(updatedCategories)
       setCategory(newCategory)
       setNewCategory("")
@@ -59,14 +71,39 @@ const AddNote = ({open, onClose, onAddNote}) => {
           onClose={onClose}
           fullWidth
           maxWidth="sm"
+          disableRestoreFocus
+          slotProps={{
+            backdrop: {
+              onClick: (e) => {
+                e.stopPropagation();
+                onClose();
+              }
+            },
+            transition: {
+              onExited: () => {
+                // Ensure focus is removed after the dialog has fully exited
+                setTimeout(() => {
+                  if (document.activeElement) {
+                    document.activeElement.blur();
+                  }
+                }, 0);
+              }
+            }
+          }}
       >
-        <DialogTitle>
-          <Box display="flex" justifyContent="space-between" alignItems="center">
-            Add New Note
-            <IconButton onClick={onClose} size="small">
-              <CloseIcon />
-            </IconButton>
-          </Box>
+        <DialogTitle sx={{ py: 1, pr: 6, position: 'relative' }}>
+          Add New Note
+          <IconButton 
+            onClick={onClose} 
+            size="small"
+            sx={{ 
+              position: 'absolute',
+              right: 8,
+              top: 8
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
         </DialogTitle>
         <form onSubmit={handleSubmit}>
           <DialogContent>
@@ -79,23 +116,36 @@ const AddNote = ({open, onClose, onAddNote}) => {
                 variant="outlined"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                sx={{mb: 2}}
+                sx={{ mt: 0, mb: 2 }}
             />
 
             {/* Category Selection Row */}
-            <Box display="flex" gap={2} alignItems="flex-end" mb={2}>
+            <Box display="flex" gap={2} alignItems="center" mb={2} sx={{ minHeight: '56px' }}>
               <FormControl sx={{ width: '50%' }}>
                 <InputLabel id="category-label">Category</InputLabel>
                 <Select
                     labelId="category-label"
                     value={category}
                     label="Category"
+                    variant="outlined"
                     onChange={(e) => setCategory(e.target.value)}
                     fullWidth
                 >
                   {categories.map((cat) => (
                       <MenuItem key={cat} value={cat}>
-                        {cat}
+                        <Box display="flex" justifyContent="space-between" alignItems="center" width="100%">
+                          <span>{cat}</span>
+                          <Box 
+                            sx={{
+                              width: 12,
+                              height: 12,
+                              borderRadius: '50%',
+                              backgroundColor: categoryConfig[cat]?.color || '#757575',
+                              ml: 1,
+                              flexShrink: 0
+                            }}
+                          />
+                        </Box>
                       </MenuItem>
                   ))}
                 </Select>
@@ -126,7 +176,12 @@ const AddNote = ({open, onClose, onAddNote}) => {
                       size="small"
                       startIcon={<AddIcon />}
                       onClick={() => setShowNewCategory(true)}
-                      sx={{ whiteSpace: 'nowrap' }}
+                      sx={{ 
+                        whiteSpace: 'nowrap',
+                        ml: 'auto',
+                        alignSelf: 'center',
+                        my: 'auto'
+                      }}
                   >
                     New Category
                   </Button>
