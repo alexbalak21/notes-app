@@ -13,7 +13,12 @@ const Home = () => {
   const [isAddNoteOpen, setIsAddNoteOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
 
-  // Fetch notes on component mount
+  /**
+   * Fetches all notes from the API when the component mounts.
+   * - Makes a GET request to the /api/notes endpoint
+   * - Updates both the main notes state and filteredNotes state
+   * - Any errors are caught and logged to the console
+   */
   useEffect(() => {
     const fetchNotes = async () => {
       try {
@@ -29,39 +34,58 @@ const Home = () => {
     fetchNotes()
   }, [])
   
-  // Filter notes when search query changes or when notes are updated
+  /**
+   * Filters notes whenever the search query or notes change.
+   * Implements real-time search across note titles, descriptions, and tags.
+   * 
+   * Search Behavior:
+   * 1. If search is empty, shows all notes
+   * 2. Otherwise, filters notes where the search term appears in:
+   *    - Title (case-insensitive)
+   *    - Description (case-insensitive)
+   *    - Any tag (if tags exist, case-insensitive)
+   */
   useEffect(() => {
+    // If search query is empty or only contains whitespace, show all notes
     if (!searchQuery || searchQuery.trim() === '') {
       setFilteredNotes(notes);
       return;
     }
 
-    const lowercasedQuery = searchQuery.toLowerCase().trim();
-    const filtered = notes.filter(note => {
-      // Make sure note and its properties exist before trying to access them
+    // Convert search query to lowercase once for case-insensitive comparison
+    const searchTerm = searchQuery.toLowerCase().trim();
+    
+    // Filter through all notes to find matches
+    const filteredResults = notes.filter(note => {
+      // Safety check: skip if note is null/undefined
       if (!note) return false;
       
-      // Check title
-      if (note.title && typeof note.title === 'string' && note.title.toLowerCase().includes(lowercasedQuery)) {
-        return true;
-      }
+      // 1. Check if search term exists in note's title
+      const hasTitleMatch = note.title && 
+                          typeof note.title === 'string' && 
+                          note.title.toLowerCase().includes(searchTerm);
+      if (hasTitleMatch) return true;
       
-      // Check description
-      if (note.description && typeof note.description === 'string' && note.description.toLowerCase().includes(lowercasedQuery)) {
-        return true;
-      }
+      // 2. Check if search term exists in note's description
+      const hasDescriptionMatch = note.description && 
+                                typeof note.description === 'string' && 
+                                note.description.toLowerCase().includes(searchTerm);
+      if (hasDescriptionMatch) return true;
       
-      // Check tags if they exist
+      // 3. Check if search term matches any of the note's tags
       if (Array.isArray(note.tags)) {
-        return note.tags.some(tag => 
-          tag && typeof tag === 'string' && tag.toLowerCase().includes(lowercasedQuery)
+        const hasTagMatch = note.tags.some(tag => 
+          tag && typeof tag === 'string' && tag.toLowerCase().includes(searchTerm)
         );
+        if (hasTagMatch) return true;
       }
       
+      // If we get here, the note doesn't match the search criteria
       return false;
     });
     
-    setFilteredNotes(filtered);
+    // Update the filtered notes that will be displayed
+    setFilteredNotes(filteredResults);
   }, [searchQuery, notes])
 
   const handleAddNote = (newNote) => {
@@ -121,9 +145,16 @@ const Home = () => {
   return (
     <Box sx={{bgcolor: "bg", minHeight: "100vh"}}>
       <Container maxWidth="lg" sx={{pt: 2}}>
+        {/* 
+          SearchBar Component
+          - Controlled component that manages the search input
+          - searchQuery: Current search term (controlled by parent)
+          - onSearchChange: Callback to update search term in parent's state
+          - The search happens in real-time as the user types
+        */}
         <SearchBar 
           searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
+          onSearchChange={setSearchQuery}x
         />
         <Box sx={{mt: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginX: 3}}>
           <SelectBar />
@@ -131,7 +162,18 @@ const Home = () => {
             <AddIcon /> Add
           </Button>
         </Box>
+        {/**
+         * Responsive Grid Layout for Notes:
+         * - On extra small screens: 1 column (full width)
+         * - On small screens: 2 columns (50% width each)
+         * - On large screens: 3 columns (33.33% width each)
+         */}
         <Grid container spacing={2} sx={{mt: 2, width: '100%', display: 'flex', flexWrap: 'wrap'}}>
+          {/* 
+            Conditional Rendering:
+            - If there are filtered notes, map through and display them
+            - If no notes match the search, show a helpful message
+          */}
           {filteredNotes && filteredNotes.length > 0 ? (
             filteredNotes.map((note) => note && (
             <Grid item key={note.id} xs={12} sm={6} lg={4} sx={{
@@ -150,7 +192,9 @@ const Home = () => {
             </Grid>
           ))) : (
             <Box sx={{ width: '100%', textAlign: 'center', mt: 4, color: 'text.secondary' }}>
-              {searchQuery && searchQuery.trim() !== '' ? 'No notes match your search.' : 'No notes found.'}
+              {searchQuery && searchQuery.trim() !== '' 
+                ? `No notes found matching "${searchQuery}"` 
+                : 'No notes available. Create your first note to get started!'}
             </Box>
           )}
         </Grid>
