@@ -68,16 +68,15 @@ const SearchButton = styled(IconButton, {
 }))
 
 // Main functional component
-export default function SearchBar() {
-  const [searchValue, setSearchValue] = React.useState('');
-
-  const handleSearch = () => {
-    // Search functionality will be implemented here
-    console.log('Searching for:', searchValue);
+export default function SearchBar({ searchQuery, onSearchChange }) {
+  const handleInputChange = (event) => {
+    onSearchChange(event.target.value);
   };
 
-  const handleInputChange = (event) => {
-    setSearchValue(event.target.value);
+  const handleKeyDown = (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+    }
   };
 
   return (
@@ -89,16 +88,17 @@ export default function SearchBar() {
 
       {/* Input field */}
       <StyledInputBase
-        value={searchValue}
+        value={searchQuery}
         onChange={handleInputChange}
-        placeholder="Search…"
+        onKeyDown={handleKeyDown}
+        placeholder="Search by title, content, or tags…"
         inputProps={{"aria-label": "search"}} // accessibility label
       />
       
       <SearchButton 
         aria-label="search"
-        onClick={handleSearch}
-        hasValue={!!searchValue}
+        type="submit"
+        hasValue={!!searchQuery}
       >
         <ArrowForwardIcon />
       </SearchButton>
