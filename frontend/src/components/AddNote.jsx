@@ -1,17 +1,22 @@
 import PropTypes from "prop-types"
 import axios from "axios"
-import {Box, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, IconButton} from "@mui/material"
+import {Box, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, IconButton, MenuItem, FormControl, InputLabel, Select} from "@mui/material"
 import {Close as CloseIcon} from "@mui/icons-material"
 import {useState, useEffect} from "react"
+
+// Available categories
+const categories = ["Home", "Work", "Personal"];
 
 const AddNote = ({open, onClose, onAddNote}) => {
   const [title, setTitle] = useState("")
   const [content, setContent] = useState("")
+  const [category, setCategory] = useState("Home")
 
   useEffect(() => {
     if (!open) {
       setTitle("")
       setContent("")
+      setCategory("Home")
     }
   }, [open])
 
@@ -22,11 +27,12 @@ const AddNote = ({open, onClose, onAddNote}) => {
         const response = await axios.post("http://127.0.0.1:5000/api/notes", {
           title,
           description: content,
-          category: "General", // optional, tweak as needed
+          category: category,
         })
         onAddNote(response.data) // send full note back to Home
         setTitle("")
         setContent("")
+        setCategory("Home")
       } catch (error) {
         console.error("Error adding note:", error)
       }
@@ -34,7 +40,23 @@ const AddNote = ({open, onClose, onAddNote}) => {
   }
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+    <Dialog 
+      open={open} 
+      onClose={onClose} 
+      fullWidth 
+      maxWidth="sm"
+      sx={{
+        '& .MuiDialog-paper': {
+          width: '90%',
+          maxWidth: '600px',
+          margin: 0,
+          '& .MuiDialogContent-root': {
+            flex: '1 1 auto',
+            minHeight: 0,
+          }
+        }
+      }}
+    >
       <DialogTitle>
         <Box display="flex" justifyContent="space-between" alignItems="center">
           Add New Note
@@ -56,6 +78,22 @@ const AddNote = ({open, onClose, onAddNote}) => {
             onChange={(e) => setTitle(e.target.value)}
             sx={{mb: 2}}
           />
+          <FormControl fullWidth margin="normal">
+            <InputLabel id="category-label">Category</InputLabel>
+            <Select
+              labelId="category-label"
+              value={category}
+              label="Category"
+              onChange={(e) => setCategory(e.target.value)}
+              sx={{ mb: 2 }}
+            >
+              {categories.map((cat) => (
+                <MenuItem key={cat} value={cat}>
+                  {cat}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
           <TextField
             margin="dense"
             label="Take a note..."
@@ -66,6 +104,13 @@ const AddNote = ({open, onClose, onAddNote}) => {
             variant="outlined"
             value={content}
             onChange={(e) => setContent(e.target.value)}
+            sx={{
+              '& .MuiInputBase-root': {
+                '& textarea': {
+                  minHeight: '75px',
+                }
+              }
+            }}
           />
         </DialogContent>
         <DialogActions sx={{px: 3, pb: 3}}>
