@@ -1,80 +1,63 @@
 from flask import Flask, jsonify, request, make_response
+from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .flaskenv file
+load_dotenv()
 
 app = Flask(__name__)
 
-notes = [
-    {
-        "id": 1,
-        "category": "Work",
-        "title": "Finish report",
-        "description": "Complete the quarterly report by Friday.",
-        "updated_at": "2023-08-01T09:00:00Z"
-    },
-    {
-        "id": 2,
-        "category": "Personal",
-        "title": "Grocery list",
-        "description": "Milk, eggs, bread, and coffee.",
-        "updated_at": "2023-08-01T10:00:00Z"
-    },
-    {
-        "id": 3,
-        "category": "Health",
-        "title": "Doctor Appointment",
-        "description": "Annual checkup on Monday at 3pm.",
-        "updated_at": "2023-08-02T14:00:00Z"
-    },
-    {
-        "id": 4,
-        "category": "Home",
-        "title": "Fix leaky faucet",
-        "description": "Call plumber or try DIY fix.",
-        "updated_at": "2023-08-03T08:30:00Z"
-    },
-    {
-        "id": 5,
-        "category": "Fitness",
-        "title": "Gym schedule",
-        "description": "Workout Tue, Thu, Sat — leg day on Thursday!",
-        "updated_at": "2023-08-04T07:15:00Z"
-    },
-    {
-        "id": 6,
-        "category": "Travel",
-        "title": "Paris itinerary",
-        "description": "Book Eiffel Tower tickets, explore Le Marais.",
-        "updated_at": "2023-08-05T11:45:00Z"
-    },
-    {
-        "id": 7,
-        "category": "Study",
-        "title": "Python course",
-        "description": "Finish modules 4 and 5 by Sunday.",
-        "updated_at": "2023-08-06T13:00:00Z"
-    },
-    {
-        "id": 8,
-        "category": "Events",
-        "title": "Birthday party",
-        "description": "Emma’s birthday at the park on Saturday.",
-        "updated_at": "2023-08-07T15:20:00Z"
-    },
-    {
-        "id": 9,
-        "category": "Finance",
-        "title": "Pay bills",
-        "description": "Electricity, water, and internet due next week.",
-        "updated_at": "2023-08-08T09:10:00Z"
-    },
-    {
-        "id": 10,
-        "category": "Ideas",
-        "title": "Startup pitch",
-        "description": "lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. More info here. lorem labore et dolore magna aliqua ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. More info here. lorem labore et dolore magna aliqua ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. More info here. lorem labore et dolore magna aliqua ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip",
-        "updated_at": "2023-08-09T17:40:00Z"
-    }
-]
+# Configure MySQL database
+app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://{os.getenv('MYSQL_USER')}:{os.getenv('MYSQL_PASSWORD')}@{os.getenv('MYSQL_HOST')}:{os.getenv('MYSQL_PORT', '3306')}/{os.getenv('MYSQL_DB')}"
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)
+
+# Define Note model
+class Note(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    category = db.Column(db.String(50), nullable=False, default='Uncategorized')
+    title = db.Column(db.String(200), nullable=False, default='')
+    description = db.Column(db.Text, nullable=True)
+    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'category': self.category,
+            'title': self.title,
+            'description': self.description,
+            'updated_at': self.updated_at.isoformat() + 'Z'
+        }
+
+# Create tables
+def init_db():
+    with app.app_context():
+        db.create_all()
+        # If no notes exist, add some sample data
+        if not Note.query.first():
+            sample_notes = [
+                {"id": 1, "category": "Work", "title": "Finish report", "description": "Complete the quarterly report by Friday."},
+                {"id": 2, "category": "Personal", "title": "Grocery list", "description": "Milk, eggs, bread, and coffee."},
+                # Add other sample notes here
+            ]
+            for note_data in sample_notes:
+                note = Note(
+                    id=note_data['id'],
+                    category=note_data['category'],
+                    title=note_data['title'],
+                    description=note_data['description'],
+                    updated_at=datetime.utcnow()
+                )
+                db.session.add(note)
+            db.session.commit()
+
+# Initialize the database
+init_db()
+
+# Database models and initialization are now at the top of the file
 
 
 @app.after_request
@@ -104,51 +87,57 @@ def handle_note_options(note_id):
 
 @app.route('/api/notes', methods=['GET'])
 def get_notes():
-    return jsonify(notes)
+    notes = Note.query.all()
+    return jsonify([note.to_dict() for note in notes])
 
 @app.route('/api/notes/<int:note_id>', methods=['GET'])
 def get_note(note_id):
-    note = next((n for n in notes if n['id'] == note_id), None)
-    return jsonify(note) if note else (jsonify({"error": "Note not found"}), 404)
+    note = Note.query.get(note_id)
+    return jsonify(note.to_dict()) if note else (jsonify({"error": "Note not found"}), 404)
 
 @app.route('/api/notes', methods=['POST'])
 def add_note():
     data = request.get_json()
-    now = datetime.utcnow().isoformat() + "Z"
-    new_id = max((note["id"] for note in notes), default=0) + 1
-    new_note = {
-        "id": new_id,
-        "category": data.get("category", "Uncategorized"),
-        "title": data.get("title", ""),
-        "description": data.get("description", ""),
-        "updated_at": now
-    }
-    notes.append(new_note)
-    return jsonify(new_note), 201
+    new_note = Note(
+        category=data.get("category", "Uncategorized"),
+        title=data.get("title", ""),
+        description=data.get("description", ""),
+        updated_at=datetime.utcnow()
+    )
+    db.session.add(new_note)
+    db.session.commit()
+    return jsonify(new_note.to_dict()), 201
 
 @app.route('/api/notes/<int:note_id>', methods=['DELETE'])
 def delete_note(note_id):
-    note = next((n for n in notes if n['id'] == note_id), None)
+    note = Note.query.get(note_id)
     if note:
-        notes.remove(note)
+        db.session.delete(note)
+        db.session.commit()
         return jsonify({"message": "Note deleted successfully"}), 200
     else:
         return jsonify({"error": "Note not found"}), 404
 
 @app.route('/api/notes/<int:note_id>', methods=['PUT'])
 def update_note(note_id):
-    data = request.get_json()
-    note = next((n for n in notes if n['id'] == note_id), None)
+    note = Note.query.get(note_id)
     if not note:
         return jsonify({"error": "Note not found"}), 404
 
+    data = request.get_json()
+    
     # Update the note fields if provided
-    note['category'] = data.get('category', note['category'])
-    note['title'] = data.get('title', note['title'])
-    note['description'] = data.get('description', note['description'])
-    note['updated_at'] = datetime.utcnow().isoformat() + "Z"
-
-    return jsonify(note), 200
+    if 'category' in data:
+        note.category = data['category']
+    if 'title' in data:
+        note.title = data['title']
+    if 'description' in data:
+        note.description = data['description']
+    
+    note.updated_at = datetime.utcnow()
+    
+    db.session.commit()
+    return jsonify(note.to_dict()), 200
 
 
 if __name__ == '__main__':
