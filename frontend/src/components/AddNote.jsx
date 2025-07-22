@@ -19,6 +19,7 @@ const AddNote = ({open, onClose, onAddNote}) => {
   const [category, setCategory] = useState("Home")
   const [categories, setCategories] = useState(defaultCategories)
   const [newCategory, setNewCategory] = useState("")
+  const [newCategoryColor, setNewCategoryColor] = useState("#757575")
   const [showNewCategory, setShowNewCategory] = useState(false)
 
   // Reset form when dialog is closed
@@ -36,13 +37,12 @@ const AddNote = ({open, onClose, onAddNote}) => {
   const handleAddNewCategory = () => {
     if (newCategory.trim() && !categories.includes(newCategory)) {
       const updatedCategories = [...categories, newCategory]
-      // Add default color for new categories
-      if (!categoryConfig[newCategory]) {
-        categoryConfig[newCategory] = { color: '#757575' }; // Default gray
-      }
+      // Save the selected color for the new category
+      categoryConfig[newCategory] = { color: newCategoryColor };
       setCategories(updatedCategories)
       setCategory(newCategory)
       setNewCategory("")
+      setNewCategoryColor("#757575") // Reset to default color
       setShowNewCategory(false)
     }
   }
@@ -160,12 +160,30 @@ const AddNote = ({open, onClose, onAddNote}) => {
                         onChange={(e) => setNewCategory(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddNewCategory())}
                         fullWidth
+                        sx={{ maxWidth: '200px' }}
                     />
+                    <Box display="flex" alignItems="center">
+                      <input
+                        type="color"
+                        value={newCategoryColor}
+                        onChange={(e) => setNewCategoryColor(e.target.value)}
+                        style={{
+                          width: '40px',
+                          height: '40px',
+                          padding: '2px',
+                          border: '1px solid #ccc',
+                          borderRadius: '4px',
+                          margin: '0 8px',
+                          cursor: 'pointer'
+                        }}
+                      />
+                    </Box>
                     <Button
                         variant="contained"
                         size="small"
                         onClick={handleAddNewCategory}
                         disabled={!newCategory.trim()}
+                        sx={{ minWidth: '80px' }}
                     >
                       Add
                     </Button>
