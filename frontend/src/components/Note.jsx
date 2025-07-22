@@ -8,17 +8,29 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Button
+  Button,
+  TextField,
+  IconButton as MuiIconButton
 } from "@mui/material"
 import EditIcon from "@mui/icons-material/Edit"
 import DeleteIcon from "@mui/icons-material/Delete"
+import CloseIcon from "@mui/icons-material/Close"
 
-const Note = ({note, onEdit, onDelete}) => {
+const Note = ({note, onUpdate, onDelete}) => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
+  const [editedNote, setEditedNote] = useState({...note})
 
   const handleEdit = (event) => {
     event.stopPropagation()
-    onEdit?.(note)
+    setEditedNote({...note})
+    setIsEditing(true)
+  }
+
+  const handleSave = (event) => {
+    event.preventDefault()
+    onUpdate?.(editedNote)
+    setIsEditing(false)
   }
 
   const handleDeleteClick = (event) => {
@@ -49,23 +61,24 @@ const Note = ({note, onEdit, onDelete}) => {
         justifyContent: "space-between",
         boxSizing: "border-box",
       }}>
-      {/* Title */}
-      <Typography variant="h6" fontWeight="bold" gutterBottom sx={{wordBreak: "break-word"}}>
-        {note.title || "Untitled"}
-      </Typography>
 
-      {/* Description */}
-      <Typography
-        variant="body2"
-        color="text.primary"
-        sx={{
-          flexGrow: 1,
-          whiteSpace: "pre-line",
-          mt: 1,
-          wordBreak: "break-word",
-        }}>
-        {note.description}
-      </Typography>
+        <>
+          <Typography variant="h6" fontWeight="bold" gutterBottom sx={{wordBreak: "break-word"}}>
+            {note.title || "Untitled"}
+          </Typography>
+          <Typography
+            variant="body2"
+            color="text.primary"
+            sx={{
+              flexGrow: 1,
+              whiteSpace: "pre-line",
+              mt: 1,
+              wordBreak: "break-word",
+            }}>
+            {note.description}
+          </Typography>
+        </>
+      
 
       {/* Date and action buttons */}
       <Box display="flex" justifyContent="space-between" alignItems="center" mt={2}>
@@ -124,6 +137,67 @@ const Note = ({note, onEdit, onDelete}) => {
             Yes, Delete
           </Button>
         </DialogActions>
+      </Dialog>
+
+      {/* Edit Note Dialog */}
+      <Dialog 
+        open={isEditing} 
+        onClose={() => setIsEditing(false)}
+        fullWidth 
+        maxWidth="sm"
+      >
+        <DialogTitle>
+          <Box display="flex" justifyContent="space-between" alignItems="center">
+            Edit Note
+            <MuiIconButton onClick={() => setIsEditing(false)} size="small">
+              <CloseIcon />
+            </MuiIconButton>
+          </Box>
+        </DialogTitle>
+        <form onSubmit={handleSave}>
+          <DialogContent>
+            <TextField
+              autoFocus
+              margin="dense"
+              label="Title"
+              type="text"
+              fullWidth
+              variant="outlined"
+              value={editedNote.title || ''}
+              onChange={(e) => setEditedNote({...editedNote, title: e.target.value})}
+              sx={{mb: 2}}
+            />
+            <TextField
+              margin="dense"
+              label="Description"
+              type="text"
+              fullWidth
+              multiline
+              rows={4}
+              variant="outlined"
+              value={editedNote.description || ''}
+              onChange={(e) => setEditedNote({...editedNote, description: e.target.value})}
+            />
+          </DialogContent>
+          <DialogActions sx={{px: 3, pb: 3}}>
+            <Button 
+              onClick={() => setIsEditing(false)} 
+              variant="outlined" 
+              color="secondary"
+              type="button"
+            >
+              Cancel
+            </Button>
+            <Button 
+              type="submit" 
+              variant="contained" 
+              color="primary" 
+              disabled={!editedNote.title?.trim()}
+            >
+              Save Changes
+            </Button>
+          </DialogActions>
+        </form>
       </Dialog>
     </Paper>
   )

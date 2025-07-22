@@ -24,8 +24,39 @@ const Home = () => {
   }, [])
 
   const handleAddNote = (newNote) => {
-    setNotes([...notes, {...newNote, id: Date.now()}])
-    setIsAddNoteOpen(false) // close dialog after adding
+    axios
+      .post("http://127.0.0.1:5000/api/notes", newNote)
+      .then((response) => {
+        setNotes([...notes, response.data])
+        setIsAddNoteOpen(false)
+      })
+      .catch((error) => {
+        console.error("Error adding note:", error)
+      })
+  }
+
+  const handleUpdateNote = (updatedNote) => {
+    axios
+      .put(`http://127.0.0.1:5000/api/notes/${updatedNote.id}`, updatedNote)
+      .then((response) => {
+        setNotes(notes.map(note => 
+          note.id === updatedNote.id ? response.data : note
+        ))
+      })
+      .catch((error) => {
+        console.error("Error updating note:", error)
+      })
+  }
+
+  const handleDeleteNote = (noteId) => {
+    axios
+      .delete(`http://127.0.0.1:5000/api/notes/${noteId}`)
+      .then(() => {
+        setNotes(notes.filter(note => note.id !== noteId))
+      })
+      .catch((error) => {
+        console.error("Error deleting note:", error)
+      })
   }
 
   const handleOpenAddNote = () => setIsAddNoteOpen(true)
@@ -51,7 +82,11 @@ const Home = () => {
               flex: '0 0 auto',
               boxSizing: 'border-box'
             }}>
-              <Note note={note} />
+              <Note 
+                note={note} 
+                onUpdate={handleUpdateNote}
+                onDelete={handleDeleteNote}
+              />
             </Grid>
           ))}
         </Grid>
