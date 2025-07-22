@@ -1,0 +1,18 @@
+###GET
+GET http://127.0.0.1:5000/api/notes
+content-type: application/json
+
+
+###GET 1
+GET http://127.0.0.1:5000/api/notes/1
+content-type: application/json
+
+###POST
+POST http://127.0.0.1:5000/api/notes
+content-type: application/json
+
+{
+  "category": "Work",
+  "title" : "test title",
+  "description" : "test description"
+}
