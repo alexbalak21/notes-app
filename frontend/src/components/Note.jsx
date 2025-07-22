@@ -1,4 +1,4 @@
-import {Box, IconButton, Paper, Typography, Checkbox} from "@mui/material"
+import {Box, IconButton, Paper, Typography} from "@mui/material"
 import EditIcon from "@mui/icons-material/Edit"
 import DeleteIcon from "@mui/icons-material/Delete"
 
@@ -9,20 +9,28 @@ const Note = ({note, onEdit, onDelete}) => {
       sx={{
         p: 2.5,
         borderRadius: 2,
-        minHeight: "220px",
+        minHeight: "240px",
+        width: "100%", // Fill parent Grid item
         display: "flex",
         flexDirection: "column",
-        position: "relative",
+        justifyContent: "space-between",
+        boxSizing: "border-box",
       }}>
-      {/* Checkbox top-left */}
-
       {/* Title */}
-      <Typography variant="h6" fontWeight="bold" gutterBottom>
+      <Typography variant="h6" fontWeight="bold" gutterBottom sx={{wordBreak: "break-word"}}>
         {note.title || "Untitled"}
       </Typography>
 
       {/* Description */}
-      <Typography variant="body2" color="text.primary" sx={{flexGrow: 1, whiteSpace: "pre-line", mt: 1}}>
+      <Typography
+        variant="body2"
+        color="text.primary"
+        sx={{
+          flexGrow: 1,
+          whiteSpace: "pre-line",
+          mt: 1,
+          wordBreak: "break-word",
+        }}>
         {note.description}
       </Typography>
 
