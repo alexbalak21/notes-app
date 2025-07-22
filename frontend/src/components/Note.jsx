@@ -1,28 +1,49 @@
-import {Paper, Typography} from "@mui/material"
+import {Box, IconButton, Paper, Typography, Checkbox} from "@mui/material"
+import EditIcon from "@mui/icons-material/Edit"
+import DeleteIcon from "@mui/icons-material/Delete"
 
-const Note = ({note}) => {
+const Note = ({note, onEdit, onDelete}) => {
   return (
     <Paper
-      elevation={2}
+      elevation={3}
       sx={{
-        p: 2,
-        height: "100%",
+        p: 2.5,
+        borderRadius: 2,
+        minHeight: "220px",
         display: "flex",
         flexDirection: "column",
-        minHeight: "200px",
+        position: "relative",
       }}>
-      <Typography variant="h6" component="h2" gutterBottom>
+      {/* Checkbox top-left */}
+
+      {/* Title */}
+      <Typography variant="h6" fontWeight="bold" gutterBottom>
         {note.title || "Untitled"}
       </Typography>
-      <Typography variant="body1" sx={{flexGrow: 1, whiteSpace: "pre-line"}}>
+
+      {/* Description */}
+      <Typography variant="body2" color="text.primary" sx={{flexGrow: 1, whiteSpace: "pre-line", mt: 1}}>
         {note.description}
       </Typography>
-      <Typography variant="caption" color="text.secondary" sx={{mt: 1}}>
-        Created: {new Date(note.created_at).toLocaleDateString()}
-      </Typography>
-      <Typography variant="caption" color="text.secondary" sx={{mt: 0.5}}>
-        Updated: {new Date(note.updated_at).toLocaleDateString()}
-      </Typography>
+
+      {/* Date and icons row */}
+      <Box display="flex" justifyContent="space-between" alignItems="center" mt={2}>
+        <Typography variant="caption" color="text.secondary">
+          {new Date(note.created_at).toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          })}
+        </Typography>
+        <Box>
+          <IconButton size="small" onClick={() => onEdit?.(note)}>
+            <EditIcon fontSize="small" />
+          </IconButton>
+          <IconButton size="small" onClick={() => onDelete?.(note.id)}>
+            <DeleteIcon fontSize="small" />
+          </IconButton>
+        </Box>
+      </Box>
     </Paper>
   )
 }

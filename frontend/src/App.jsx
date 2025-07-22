@@ -24,7 +24,7 @@ const lightTheme = createTheme({
 })
 
 const App = () => (
-  <ThemeProvider theme={darkTheme}>
+  <ThemeProvider theme={lightTheme}>
     <CssBaseline />
     <Routes>
       <Route path="/" element={<Home />} />
