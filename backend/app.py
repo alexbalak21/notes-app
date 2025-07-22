@@ -1,8 +1,9 @@
-from flask import Flask, jsonify, request, make_response
+from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 import os
 from dotenv import load_dotenv
+from cors import init_cors, handle_notes_options, handle_note_options
 
 # Load environment variables from .flaskenv file
 load_dotenv()
@@ -13,7 +14,11 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://{os.getenv('MYSQL_USER')}:{os.getenv('MYSQL_PASSWORD')}@{os.getenv('MYSQL_HOST')}:{os.getenv('MYSQL_PORT', '3306')}/{os.getenv('MYSQL_DB')}"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+# Initialize SQLAlchemy
 db = SQLAlchemy(app)
+
+# Initialize CORS
+init_cors(app)
 
 # Define Note model
 class Note(db.Model):
@@ -60,30 +65,14 @@ init_db()
 # Database models and initialization are now at the top of the file
 
 
-@app.after_request
-def add_cors_headers(response):
-    if request.method == 'OPTIONS':
-        response = make_response()
-    response.headers['Access-Control-Allow-Origin'] = '*'
-    response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
-    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
-    return response
-
+# CORS preflight handlers
 @app.route('/api/notes', methods=['OPTIONS'])
-def handle_notes_options():
-    response = make_response()
-    response.headers['Access-Control-Allow-Origin'] = '*'
-    response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
-    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
-    return response
+def handle_notes_options_route():
+    return handle_notes_options()
 
 @app.route('/api/notes/<int:note_id>', methods=['OPTIONS'])
-def handle_note_options(note_id):
-    response = make_response()
-    response.headers['Access-Control-Allow-Origin'] = '*'
-    response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
-    response.headers['Access-Control-Allow-Methods'] = 'GET, PUT, DELETE, OPTIONS'
-    return response
+def handle_note_options_route(note_id):
+    return handle_note_options(note_id)
 
 @app.route('/api/notes', methods=['GET'])
 def get_notes():
@@ -139,6 +128,3 @@ def update_note(note_id):
     db.session.commit()
     return jsonify(note.to_dict()), 200
 
-
-if __name__ == '__main__':
-    app.run(debug=True)

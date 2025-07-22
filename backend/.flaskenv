@@ -3,7 +3,8 @@ FLASK_ENV=development
 
 # MySQL Configuration
 MYSQL_HOST=localhost
-MYSQL_USER=your_username
-MYSQL_PASSWORD=your_password
-MYSQL_DB=notes_app
+MYSQL_USER=flask
+MYSQL_PASSWORD=python_is_still_fast_to_dev
+MYSQL_DB=notes
 MYSQL_PORT=3306
+fl
