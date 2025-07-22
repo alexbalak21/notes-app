@@ -12,12 +12,16 @@ const Search = styled("div")(({theme}) => ({
   backgroundColor: theme.palette.mode === 'dark' 
     ? alpha(theme.palette.common.white, 0.1)  // Darker background in dark mode
     : theme.palette.common.white, // White background in light mode
-  boxShadow: theme.shadows[1], // Use theme's shadow
+  boxShadow: theme.palette.mode === 'dark' 
+    ? theme.shadows[1]  // Subtle shadow in dark mode
+    : `0 2px 4px ${alpha(theme.palette.common.black, 0.1)}`, // Original light theme shadow
   '&:hover': {
     backgroundColor: theme.palette.mode === 'dark'
       ? alpha(theme.palette.common.white, 0.15)  // Slightly lighter on hover in dark mode
-      : alpha(theme.palette.common.black, 0.02), // Subtle hover in light mode
-    boxShadow: theme.shadows[2], // Slightly stronger shadow on hover
+      : theme.palette.common.white, // Keep white background on hover in light mode
+    boxShadow: theme.palette.mode === 'dark' 
+      ? theme.shadows[2]  // Slightly stronger shadow on hover in dark mode
+      : `0 4px 8px ${alpha(theme.palette.common.black, 0.15)}`, // Original hover shadow in light mode
   },
   padding: theme.spacing(0.5, 1), // inner spacing
   margin: theme.spacing(0, 2), // equal margins on both sides
@@ -29,7 +33,10 @@ const Search = styled("div")(({theme}) => ({
     margin: theme.spacing(0, 3), // equal margins on both sides for larger screens
     width: "calc(100% - 48px)", // adjust width to account for margins
   },
-  transition: theme.transitions.create(['background-color', 'box-shadow']), // Smooth transitions
+  transition: theme.transitions.create(['box-shadow', 'background-color'], {
+    duration: theme.transitions.duration.shorter,
+  }),
+  border: 'none', // No border in either theme
 }))
 
 // Wrapper for the Search icon
