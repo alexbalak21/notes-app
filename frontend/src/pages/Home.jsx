@@ -12,6 +12,7 @@ const Home = () => {
   const [filteredNotes, setFilteredNotes] = useState([])
   const [isAddNoteOpen, setIsAddNoteOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState('All')
 
   /**
    * Fetches all notes from the API when the component mounts.
@@ -35,58 +36,52 @@ const Home = () => {
   }, [])
   
   /**
-   * Filters notes whenever the search query or notes change.
-   * Implements real-time search across note titles, descriptions, and tags.
-   * 
-   * Search Behavior:
-   * 1. If search is empty, shows all notes
-   * 2. Otherwise, filters notes where the search term appears in:
-   *    - Title (case-insensitive)
-   *    - Description (case-insensitive)
-   *    - Any tag (if tags exist, case-insensitive)
+   * Filters notes based on search query and selected category.
+   * Implements real-time filtering across note titles, descriptions, tags, and categories.
    */
   useEffect(() => {
-    // If search query is empty or only contains whitespace, show all notes
-    if (!searchQuery || searchQuery.trim() === '') {
-      setFilteredNotes(notes);
-      return;
+    let results = [...notes];
+    
+    // Filter by category if not 'All'
+    if (selectedCategory !== 'All') {
+      results = results.filter(note => 
+        note.category && note.category.toLowerCase() === selectedCategory.toLowerCase()
+      );
     }
-
-    // Convert search query to lowercase once for case-insensitive comparison
-    const searchTerm = searchQuery.toLowerCase().trim();
     
-    // Filter through all notes to find matches
-    const filteredResults = notes.filter(note => {
-      // Safety check: skip if note is null/undefined
-      if (!note) return false;
+    // Filter by search query if provided
+    if (searchQuery && searchQuery.trim() !== '') {
+      const searchTerm = searchQuery.toLowerCase().trim();
       
-      // 1. Check if search term exists in note's title
-      const hasTitleMatch = note.title && 
-                          typeof note.title === 'string' && 
-                          note.title.toLowerCase().includes(searchTerm);
-      if (hasTitleMatch) return true;
-      
-      // 2. Check if search term exists in note's description
-      const hasDescriptionMatch = note.description && 
-                                typeof note.description === 'string' && 
-                                note.description.toLowerCase().includes(searchTerm);
-      if (hasDescriptionMatch) return true;
-      
-      // 3. Check if search term matches any of the note's tags
-      if (Array.isArray(note.tags)) {
-        const hasTagMatch = note.tags.some(tag => 
-          tag && typeof tag === 'string' && tag.toLowerCase().includes(searchTerm)
-        );
-        if (hasTagMatch) return true;
-      }
-      
-      // If we get here, the note doesn't match the search criteria
-      return false;
-    });
+      results = results.filter(note => {
+        if (!note) return false;
+        
+        // Check title
+        const hasTitleMatch = note.title && 
+                            typeof note.title === 'string' && 
+                            note.title.toLowerCase().includes(searchTerm);
+        if (hasTitleMatch) return true;
+        
+        // Check description
+        const hasDescriptionMatch = note.description && 
+                                  typeof note.description === 'string' && 
+                                  note.description.toLowerCase().includes(searchTerm);
+        if (hasDescriptionMatch) return true;
+        
+        // Check tags if they exist
+        if (Array.isArray(note.tags)) {
+          const hasTagMatch = note.tags.some(tag => 
+            tag && typeof tag === 'string' && tag.toLowerCase().includes(searchTerm)
+          );
+          if (hasTagMatch) return true;
+        }
+        
+        return false;
+      });
+    }
     
-    // Update the filtered notes that will be displayed
-    setFilteredNotes(filteredResults);
-  }, [searchQuery, notes])
+    setFilteredNotes(results);
+  }, [searchQuery, notes, selectedCategory])
 
   const handleAddNote = (newNote) => {
     axios
@@ -157,7 +152,10 @@ const Home = () => {
           onSearchChange={setSearchQuery}x
         />
         <Box sx={{mt: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginX: 3}}>
-          <SelectBar />
+          <SelectBar 
+            selectedCategory={selectedCategory}
+            onCategoryChange={setSelectedCategory}
+          />
           <Button sx={{ ml: 3 }} size="large" variant="contained" onClick={handleOpenAddNote}>
             <AddIcon /> Add
           </Button>
@@ -193,8 +191,10 @@ const Home = () => {
           ))) : (
             <Box sx={{ width: '100%', textAlign: 'center', mt: 4, color: 'text.secondary' }}>
               {searchQuery && searchQuery.trim() !== '' 
-                ? `No notes found matching "${searchQuery}"` 
-                : 'No notes available. Create your first note to get started!'}
+                ? `No notes found matching "${searchQuery}"`
+                : selectedCategory !== 'All'
+                  ? `No notes found in the "${selectedCategory}" category`
+                  : 'No notes available. Create your first note to get started!'}
             </Box>
           )}
         </Grid>

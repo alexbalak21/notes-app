@@ -5,8 +5,12 @@ import CategoryChip from "./CategoryChip"
 // Categories with label and color
 const categories = ["All", "Home", "Work", "Personal"]
 
-export default function SelectBar() {
-  const [selected, setSelected] = React.useState("All")
+export default function SelectBar({ selectedCategory = "All", onCategoryChange }) {
+  const handleCategoryClick = (category) => {
+    if (onCategoryChange) {
+      onCategoryChange(category);
+    }
+  };
 
   return (
     <Box display="flex" justifyContent="center" flexWrap="wrap">
@@ -14,11 +18,11 @@ export default function SelectBar() {
         <Box key={category} mx={0.5} my={0.5}>
           <CategoryChip
             category={category}
-            selected={selected === category}
-            onClick={() => setSelected(category)}
+            selected={selectedCategory === category}
+            onClick={() => handleCategoryClick(category)}
           />
         </Box>
       ))}
     </Box>
-  )
+  );
 }
