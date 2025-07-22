@@ -2,6 +2,8 @@ import * as React from "react"
 import {styled, alpha} from "@mui/material/styles"
 import InputBase from "@mui/material/InputBase"
 import SearchIcon from "@mui/icons-material/Search"
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import IconButton from "@mui/material/IconButton"
 
 // Styled container for the search bar
 const Search = styled("div")(({theme}) => ({
@@ -15,6 +17,8 @@ const Search = styled("div")(({theme}) => ({
   padding: theme.spacing(0.5, 1), // inner spacing
   margin: theme.spacing(0, 2), // equal margins on both sides
   width: "calc(100% - 32px)", // adjust width to account for margins
+  display: 'flex', // Use flex for the container
+  alignItems: 'center', // Center items vertically
   // Apply styles for screens size 'sm' and up
   [theme.breakpoints.up("sm")]: {
     margin: theme.spacing(0, 3), // equal margins on both sides for larger screens
@@ -36,7 +40,7 @@ const SearchIconWrapper = styled("div")(({theme}) => ({
 // Styled input field
 const StyledInputBase = styled(InputBase)(({theme}) => ({
   color: theme.palette.grey[800], // text color
-  width: "100%", // ensures input expands to fill space
+  flex: 1, // takes remaining space
   "& .MuiInputBase-input": {
     padding: theme.spacing(1, 1, 1, 0), // input padding
     paddingLeft: `calc(1em + ${theme.spacing(4)})`, // account for icon width
@@ -46,8 +50,36 @@ const StyledInputBase = styled(InputBase)(({theme}) => ({
   },
 }))
 
+const SearchButton = styled(IconButton, {
+  shouldForwardProp: (prop) => prop !== 'hasValue',
+})(({ theme, hasValue }) => ({
+  padding: theme.spacing(1),
+  color: theme.palette.primary.main,
+  marginLeft: theme.spacing(0.5),
+  '&:hover': {
+    backgroundColor: alpha(theme.palette.primary.main, 0.1),
+  },
+  transition: theme.transitions.create(['opacity', 'transform'], {
+    duration: theme.transitions.duration.shorter,
+  }),
+  opacity: hasValue ? 1 : 0,
+  transform: hasValue ? 'scale(1)' : 'scale(0.9)',
+  pointerEvents: hasValue ? 'auto' : 'none',
+}))
+
 // Main functional component
 export default function SearchBar() {
+  const [searchValue, setSearchValue] = React.useState('');
+
+  const handleSearch = () => {
+    // Search functionality will be implemented here
+    console.log('Searching for:', searchValue);
+  };
+
+  const handleInputChange = (event) => {
+    setSearchValue(event.target.value);
+  };
+
   return (
     <Search>
       {/* Icon on the left */}
@@ -57,9 +89,19 @@ export default function SearchBar() {
 
       {/* Input field */}
       <StyledInputBase
+        value={searchValue}
+        onChange={handleInputChange}
         placeholder="Search…"
         inputProps={{"aria-label": "search"}} // accessibility label
       />
+      
+      <SearchButton 
+        aria-label="search"
+        onClick={handleSearch}
+        hasValue={!!searchValue}
+      >
+        <ArrowForwardIcon />
+      </SearchButton>
     </Search>
   )
 }
