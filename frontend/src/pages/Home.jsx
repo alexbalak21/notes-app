@@ -46,8 +46,8 @@ const Home = () => {
         return true;
       }
       
-      // Check content
-      if (note.content && typeof note.content === 'string' && note.content.toLowerCase().includes(lowercasedQuery)) {
+      // Check description
+      if (note.description && typeof note.description === 'string' && note.description.toLowerCase().includes(lowercasedQuery)) {
         return true;
       }
       
