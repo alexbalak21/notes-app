@@ -9,10 +9,15 @@ import IconButton from "@mui/material/IconButton"
 const Search = styled("div")(({theme}) => ({
   position: "relative", // ensures the search icon can be absolutely positioned
   borderRadius: theme.shape.borderRadius, // applies theme's border radius
-  backgroundColor: theme.palette.common.white, // sets background color
-  boxShadow: `0 2px 4px ${alpha(theme.palette.common.black, 0.1)}`, // soft shadow for elevation
+  backgroundColor: theme.palette.mode === 'dark' 
+    ? alpha(theme.palette.common.white, 0.1)  // Darker background in dark mode
+    : theme.palette.common.white, // White background in light mode
+  boxShadow: theme.shadows[1], // Use theme's shadow
   '&:hover': {
-    boxShadow: `0 4px 8px ${alpha(theme.palette.common.black, 0.15)}`, // subtle hover effect
+    backgroundColor: theme.palette.mode === 'dark'
+      ? alpha(theme.palette.common.white, 0.15)  // Slightly lighter on hover in dark mode
+      : alpha(theme.palette.common.black, 0.02), // Subtle hover in light mode
+    boxShadow: theme.shadows[2], // Slightly stronger shadow on hover
   },
   padding: theme.spacing(0.5, 1), // inner spacing
   margin: theme.spacing(0, 2), // equal margins on both sides
@@ -24,6 +29,7 @@ const Search = styled("div")(({theme}) => ({
     margin: theme.spacing(0, 3), // equal margins on both sides for larger screens
     width: "calc(100% - 48px)", // adjust width to account for margins
   },
+  transition: theme.transitions.create(['background-color', 'box-shadow']), // Smooth transitions
 }))
 
 // Wrapper for the Search icon
@@ -39,14 +45,22 @@ const SearchIconWrapper = styled("div")(({theme}) => ({
 
 // Styled input field
 const StyledInputBase = styled(InputBase)(({theme}) => ({
-  color: theme.palette.grey[800], // text color
+  color: theme.palette.text.primary, // Use theme's text color
   flex: 1, // takes remaining space
   "& .MuiInputBase-input": {
     padding: theme.spacing(1, 1, 1, 0), // input padding
     paddingLeft: `calc(1em + ${theme.spacing(4)})`, // account for icon width
-    transition: theme.transitions.create("width"), // smooth resize animation
+    transition: theme.transitions.create(["width", "opacity"]), // smooth animations
     width: "100%",
     fontSize: "0.95rem", // slightly smaller font
+    '&::placeholder': {
+      color: theme.palette.text.secondary, // Use theme's secondary text color for placeholder
+      opacity: 0.8,
+    },
+  },
+  '& .MuiInputBase-input::placeholder': {
+    color: theme.palette.text.secondary,
+    opacity: 0.7,
   },
 }))
 
@@ -54,17 +68,25 @@ const SearchButton = styled(IconButton, {
   shouldForwardProp: (prop) => prop !== 'hasValue',
 })(({ theme, hasValue }) => ({
   padding: theme.spacing(1),
-  color: theme.palette.primary.main,
+  color: theme.palette.mode === 'dark' 
+    ? theme.palette.primary.light 
+    : theme.palette.primary.main,
   marginLeft: theme.spacing(0.5),
+  backgroundColor: 'transparent',
   '&:hover': {
-    backgroundColor: alpha(theme.palette.primary.main, 0.1),
+    backgroundColor: theme.palette.mode === 'dark'
+      ? alpha(theme.palette.primary.light, 0.1)
+      : alpha(theme.palette.primary.main, 0.1),
   },
-  transition: theme.transitions.create(['opacity', 'transform'], {
+  transition: theme.transitions.create(['opacity', 'transform', 'background-color'], {
     duration: theme.transitions.duration.shorter,
   }),
   opacity: hasValue ? 1 : 0,
   transform: hasValue ? 'scale(1)' : 'scale(0.9)',
   pointerEvents: hasValue ? 'auto' : 'none',
+  '&:active': {
+    transform: hasValue ? 'scale(0.95)' : 'scale(0.85)',
+  },
 }))
 
 // Main functional component
@@ -83,7 +105,7 @@ export default function SearchBar({ searchQuery, onSearchChange }) {
     <Search>
       {/* Icon on the left */}
       <SearchIconWrapper>
-        <SearchIcon />
+        <SearchIcon color={searchQuery ? 'primary' : 'action'} />
       </SearchIconWrapper>
 
       {/* Input field */}
