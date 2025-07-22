@@ -4,6 +4,7 @@ import {Box, Container, Grid, Paper, Typography} from "@mui/material"
 import TopBar from "../components/TopBar"
 import AddNote from "../components/AddNote"
 import Note from "../components/Note"
+import SearchBar from "../components/SearchBar"
 
 const Home = () => {
   const [notes, setNotes] = useState([])
@@ -30,10 +31,10 @@ const Home = () => {
   const handleCloseAddNote = () => setIsAddNoteOpen(false)
 
   return (
-    <Box sx={{bgcolor: "bg", minHeight: "100vh", pb: 8}}>
-      <TopBar onAddClick={handleOpenAddNote} />
-      <Container maxWidth="lg" sx={{mt: 4}}>
-        <Grid container spacing={3}>
+    <Box sx={{bgcolor: "bg", minHeight: "100vh"}}>
+      <Container maxWidth="lg" sx={{pt: 2}}>
+        <SearchBar />
+        <Grid container spacing={3} sx={{mt: 2}}>
           {notes.map((note) => (
             <Grid item key={note.id} xs={12} sm={6} md={4}>
               <Note note={note} />
