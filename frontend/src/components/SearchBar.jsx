@@ -9,17 +9,16 @@ const Search = styled("div")(({theme}) => ({
   borderRadius: theme.shape.borderRadius, // applies theme's border radius
   backgroundColor: theme.palette.common.white, // sets background color
   boxShadow: `0 2px 4px ${alpha(theme.palette.common.black, 0.1)}`, // soft shadow for elevation
-  display: "flex", // flex layout to center contents
-  alignItems: "center", // vertical centering
+  '&:hover': {
+    boxShadow: `0 4px 8px ${alpha(theme.palette.common.black, 0.15)}`, // subtle hover effect
+  },
   padding: theme.spacing(0.5, 1), // inner spacing
-  marginLeft: theme.spacing(1), // default left margin for small screens
-  marginRight: theme.spacing(1), // default right margin for small screens
-  width: "calc(100% - 16px)", // avoids overflow by accounting for margin
+  margin: theme.spacing(0, 2), // equal margins on both sides
+  width: "calc(100% - 32px)", // adjust width to account for margins
   // Apply styles for screens size 'sm' and up
   [theme.breakpoints.up("sm")]: {
-    marginLeft: theme.spacing(3), // larger left margin for medium+ screens
-    marginRight: theme.spacing(3), // larger right margin
-    width: "100%", // override width to full container
+    margin: theme.spacing(0, 3), // equal margins on both sides for larger screens
+    width: "calc(100% - 48px)", // adjust width to account for margins
   },
 }))
 

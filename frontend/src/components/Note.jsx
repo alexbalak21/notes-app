@@ -1,8 +1,41 @@
-import {Box, IconButton, Paper, Typography} from "@mui/material"
+import {useState} from "react"
+import {
+  Box,
+  IconButton,
+  Paper,
+  Typography,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button
+} from "@mui/material"
 import EditIcon from "@mui/icons-material/Edit"
 import DeleteIcon from "@mui/icons-material/Delete"
 
 const Note = ({note, onEdit, onDelete}) => {
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+
+  const handleEdit = (event) => {
+    event.stopPropagation()
+    onEdit?.(note)
+  }
+
+  const handleDeleteClick = (event) => {
+    event.stopPropagation()
+    setDeleteDialogOpen(true)
+  }
+
+  const handleDeleteConfirm = (event) => {
+    event.stopPropagation()
+    setDeleteDialogOpen(false)
+    onDelete?.(note.id)
+  }
+
+  const handleDeleteCancel = (event) => {
+    event.stopPropagation()
+    setDeleteDialogOpen(false)
+  }
   return (
     <Paper
       elevation={3}
@@ -34,7 +67,7 @@ const Note = ({note, onEdit, onDelete}) => {
         {note.description}
       </Typography>
 
-      {/* Date and icons row */}
+      {/* Date and action buttons */}
       <Box display="flex" justifyContent="space-between" alignItems="center" mt={2}>
         <Typography variant="caption" color="text.secondary">
           {new Date(note.created_at).toLocaleDateString("en-US", {
@@ -44,14 +77,54 @@ const Note = ({note, onEdit, onDelete}) => {
           })}
         </Typography>
         <Box>
-          <IconButton size="small" onClick={() => onEdit?.(note)}>
+          <IconButton 
+            size="small" 
+            onClick={handleEdit}
+            sx={{ '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' } }}
+          >
             <EditIcon fontSize="small" />
           </IconButton>
-          <IconButton size="small" onClick={() => onDelete?.(note.id)}>
-            <DeleteIcon fontSize="small" />
+          <IconButton 
+            size="small" 
+            onClick={handleDeleteClick}
+            sx={{ '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' } }}
+          >
+            <DeleteIcon fontSize="small" color="error" />
           </IconButton>
         </Box>
       </Box>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={handleDeleteCancel}
+        onClick={(e) => e.stopPropagation()}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle>Delete Note?</DialogTitle>
+        <DialogContent>
+          <Typography>Are you sure you want to delete this note?</Typography>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button 
+            onClick={handleDeleteCancel}
+            variant="outlined"
+            color="inherit"
+            sx={{ textTransform: 'none' }}
+          >
+            No, Keep It
+          </Button>
+          <Button 
+            onClick={handleDeleteConfirm}
+            variant="contained"
+            color="error"
+            sx={{ textTransform: 'none', boxShadow: 'none' }}
+          >
+            Yes, Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Paper>
   )
 }

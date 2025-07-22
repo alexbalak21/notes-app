@@ -1,10 +1,11 @@
 import {useState, useEffect} from "react"
 import axios from "axios"
-import {Box, Container, Grid} from "@mui/material"
+import {Box, Button, Container, Grid} from "@mui/material"
 import AddNote from "../components/AddNote"
 import Note from "../components/Note"
 import SearchBar from "../components/SearchBar"
 import SelectBar from "../components/SelectBar"
+import AddIcon from "@mui/icons-material/Add";
 
 const Home = () => {
   const [notes, setNotes] = useState([])
@@ -34,8 +35,11 @@ const Home = () => {
     <Box sx={{bgcolor: "bg", minHeight: "100vh"}}>
       <Container maxWidth="lg" sx={{pt: 2}}>
         <SearchBar />
-        <Box sx={{mt: 2}}>
+        <Box sx={{mt: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginX: 3}}>
           <SelectBar />
+          <Button sx={{ ml: 3 }} size="large" variant="contained" onClick={handleOpenAddNote}>
+            <AddIcon /> Add
+          </Button>
         </Box>
         <Grid container spacing={2} sx={{mt: 2, width: '100%', display: 'flex', flexWrap: 'wrap'}}>
           {notes.map((note) => (
