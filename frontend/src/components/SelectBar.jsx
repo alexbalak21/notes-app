@@ -12,17 +12,40 @@ const Dot = styled("span")(({color}) => ({
   marginRight: 6,
 }))
 
-// Styled Chip that takes backgroundColor dynamically
-const StyledChip = styled(Chip)(({theme, customcolor}) => ({
-  margin: theme.spacing(0.5),
-  backgroundColor: customcolor || theme.palette.grey[100], // selected color or default
-  color: customcolor ? theme.palette.common.white : theme.palette.text.primary,
-  fontWeight: customcolor ? 600 : 400,
-  padding: "0 12px",
-  borderRadius: theme.shape.borderRadius * 2,
-  cursor: "pointer",
-  transition: "all 0.3s ease", // smooth transition
-}))
+// Styled Chip that takes backgroundColor dynamically and handles dark mode
+const StyledChip = styled(Chip)(({theme, customcolor}) => {
+  const isDark = theme.palette.mode === 'dark';
+  const defaultBg = isDark ? theme.palette.grey[800] : theme.palette.grey[100];
+  const hoverBg = isDark ? theme.palette.grey[700] : theme.palette.grey[200];
+  
+  return {
+    margin: theme.spacing(0.5),
+    backgroundColor: customcolor || defaultBg,
+    color: customcolor 
+      ? theme.palette.getContrastText(customcolor) 
+      : theme.palette.text.primary,
+    fontWeight: customcolor ? 600 : 400,
+    padding: "0 12px",
+    borderRadius: theme.shape.borderRadius * 2,
+    cursor: "pointer",
+    transition: "all 0.2s ease-in-out",
+    border: `1px solid ${customcolor ? 'transparent' : theme.palette.divider}`,
+    '&:hover': {
+      backgroundColor: customcolor 
+        ? theme.palette.augmentColor({ color: { main: customcolor } }).dark
+        : hoverBg,
+      transform: 'translateY(-1px)',
+      boxShadow: theme.shadows[1],
+    },
+    '&:focus-visible': {
+      outline: `2px solid ${theme.palette.primary.main}`,
+      outlineOffset: '2px',
+    },
+    '& .MuiChip-label': {
+      padding: '4px 0',
+    }
+  };
+})
 
 // Categories with label and optional dot color
 const categories = [
