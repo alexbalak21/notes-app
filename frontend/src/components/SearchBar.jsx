@@ -24,8 +24,13 @@ const Search = styled("div")(({theme}) => ({
       : `0 4px 8px ${alpha(theme.palette.common.black, 0.15)}`, // Original hover shadow in light mode
   },
   padding: theme.spacing(0.5, 1), // inner spacing
-  margin: theme.spacing(0, 2), // equal margins on both sides
-  width: "calc(100% - 32px)", // adjust width to account for margins
+  margin: theme.spacing(7, 1, 0, 1), // top: 7 (56px), right: 1 (8px), left: 1 (8px)
+  width: "calc(100% - 16px)", // adjust width to account for margins (8px on each side)
+  // Reset margins on larger screens
+  [theme.breakpoints.up('sm')]: {
+    margin: theme.spacing(0, 3), // original margins on larger screens
+    width: "calc(100% - 48px)", // original width on larger screens
+  },
   display: 'flex', // Use flex for the container
   alignItems: 'center', // Center items vertically
   // Apply styles for screens size 'sm' and up

@@ -17,14 +17,25 @@ const ThemeToggleButton = () => {
           top: 16,
           right: 16,
           zIndex: 1200,
-          backgroundColor: 'background.paper',
+          backgroundColor: theme => theme.palette.background.paper,
           '&:hover': {
-            backgroundColor: 'action.hover',
+            backgroundColor: theme => theme.palette.action.hover,
           },
           boxShadow: 1,
+          width: 40,
+          height: 40,
+          [theme => theme.breakpoints.down('sm')]: {
+            width: 36,
+            height: 36,
+            top: 12,
+            right: 12,
+          },
         }}
       >
-        {darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
+        {darkMode ? 
+          <Brightness7Icon fontSize="small" /> : 
+          <Brightness4Icon fontSize="small" />
+        }
       </IconButton>
     </Tooltip>
   );

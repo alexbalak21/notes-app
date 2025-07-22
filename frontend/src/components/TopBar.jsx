@@ -8,18 +8,27 @@ import PropTypes from 'prop-types';
 
 export default function TopBar({ onAddClick }) {
   return (
-      <Box sx={{ flexGrow: 1 }}>
-        <AppBar color="default" position="static">
-          <Container>
-            <Toolbar>
-              <SearchBar />
-              <Button sx={{ ml: 3 }} size="large" variant="contained" onClick={onAddClick}>
-                <AddIcon /> Add
-              </Button>
-            </Toolbar>
-          </Container>
-        </AppBar>
-      </Box>
+    <Box sx={{ flexGrow: 1 }}>
+      <AppBar color="default" position="static">
+        <Container>
+          <Toolbar>
+            <SearchBar />
+            <Button 
+              sx={{ 
+                ml: 3, 
+                whiteSpace: 'nowrap'
+              }} 
+              size="large" 
+              variant="contained" 
+              onClick={onAddClick}
+            >
+              <AddIcon sx={{ display: { xs: 'none', sm: 'inline-flex' } }} /> 
+              <Box component="span" sx={{ ml: { xs: 0, sm: 0.5 } }}>Add</Box>
+            </Button>
+          </Toolbar>
+        </Container>
+      </AppBar>
+    </Box>
   );
 }
 
