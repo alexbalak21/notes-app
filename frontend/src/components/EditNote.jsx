@@ -12,20 +12,10 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  FormHelperText,
-  styled
+  FormHelperText
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-
-// Simple Dot component for category colors
-const Dot = styled('span')(({ color }) => ({
-  display: 'inline-block',
-  width: 12,
-  height: 12,
-  borderRadius: '50%',
-  backgroundColor: color,
-  flexShrink: 0
-}));
+import Dot from "./Dot";
 
 
 const EditNote = ({ 
