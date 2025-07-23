@@ -1,315 +1,209 @@
-import {useState, useEffect} from "react"
-import axios from "axios"
-import {Box, Button, Container, Grid} from "@mui/material"
-import AddNote from "../components/AddNote"
-import Note from "../components/Note"
-import SearchBar from "../components/SearchBar"
-import SelectBar from "../components/SelectBar"
-import AddIcon from "@mui/icons-material/Add";
+import { useState } from 'react';
+import { Box, Button, Container, Grid } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
 
-// Import API configuration
-import { API_ENDPOINTS } from '../config';
+import AddNote from '../components/AddNote';
+import Note from '../components/Note';
+import SearchBar from '../components/SearchBar';
+import SelectBar from '../components/SelectBar';
+
+// Custom hooks
+import { useNotes } from '../hooks/useNotes';
+import { useCategories } from '../hooks/useCategories';
+import { useNoteFilters } from '../hooks/useNoteFilters';
 
 const Home = () => {
-  const [notes, setNotes] = useState([])
-  const [filteredNotes, setFilteredNotes] = useState([])
-  const [isAddNoteOpen, setIsAddNoteOpen] = useState(false)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState('All')
-  // Default to an array with 'All' as the first category
-  const [categories, setCategories] = useState([{ id: 'all', name: 'All' }])
-  const [categoryConfig, setCategoryConfig] = useState({})
+  // State for UI
+  const [isAddNoteOpen, setIsAddNoteOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
 
-  /**
-   * Fetches all notes from the API when the component mounts.
-   * - Makes a GET request to the /api/notes endpoint
-   * - Updates both the main notes state and filteredNotes state
-   * - Any errors are caught and logged to the console
-   */
-  useEffect(() => {
-    const fetchNotes = async () => {
-      try {
-        const response = await axios.get(API_ENDPOINTS.NOTES)
-        setNotes(response.data)
-        setFilteredNotes(response.data)
-        console.log("Fetched notes:", response.data)
-      } catch (error) {
-        console.error("Error fetching notes:", error)
-      }
+  // Data management with custom hooks
+  const { 
+    notes, 
+    isLoading: isLoadingNotes, 
+    error: notesError, 
+    addNote, 
+    updateNote, 
+    deleteNote 
+  } = useNotes();
+
+  const { 
+    categories, 
+    categoryConfig, 
+    isLoading: isLoadingCategories, 
+    error: categoriesError, 
+    addCategory 
+  } = useCategories();
+
+  // Filter notes based on search and category
+  const filteredNotes = useNoteFilters(notes, { searchQuery, selectedCategory });
+
+  // Handle note operations
+  const handleAddNote = async (newNote) => {
+    try {
+      await addNote(newNote);
+      setIsAddNoteOpen(false);
+    } catch (error) {
+      console.error('Error adding note:', error);
     }
-    
-    fetchNotes()
-  }, [])
+  };
 
-  /**
-   * Fetches all categories from the API when the component mounts
-   * and updates the categories state with 'All' as the first option
-   */
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        console.log('Fetching categories from:', API_ENDPOINTS.CATEGORIES);
-        const response = await axios.get(API_ENDPOINTS.CATEGORIES);
-        console.log('Categories response:', response.data);
-        
-        // Filter out any potential 'All' category from the API response
-        const apiCategories = Array.isArray(response.data) 
-          ? response.data.filter(cat => cat.name.toLowerCase() !== 'all')
-          : [];
-        
-        // Add 'All' as the first category
-        const categoriesWithAll = [
-          { id: 'all', name: 'All' },
-          ...apiCategories
-        ];
-        
-        // Create a mapping of category names to their colors
-        const categoryColorMap = {};
-        apiCategories.forEach(cat => {
-          if (cat.name) {
-            categoryColorMap[cat.name] = { color: cat.color || '#9e9e9e' };
-          }
-        });
-        
-        setCategories(categoriesWithAll);
-        setCategoryConfig(categoryColorMap);
-        console.log('Categories set:', categoriesWithAll);
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-        // If the endpoint fails, fall back to default categories
-        const defaultCategoriesList = [
-          { id: 'all', name: 'All' },
-          { id: 1, name: 'Home', color: '#2196f3' },
-          { id: 2, name: 'Work', color: '#4caf50' },
-          { id: 3, name: 'Personal', color: '#9c27b0' }
-        ];
-        
-        const defaultColorMap = {
-          'Home': { color: '#2196f3' },
-          'Work': { color: '#4caf50' },
-          'Personal': { color: '#9c27b0' }
-        };
-        
-        setCategories(defaultCategoriesList);
-        setCategoryConfig(defaultColorMap);
-        console.log('Using default categories:', defaultCategoriesList);
-      }
-    };
-    
-    fetchCategories();
-  }, []);
-
-  
-  /**
-   * Filters notes based on search query and selected category.
-   * Implements real-time filtering across note titles, descriptions, tags, and categories.
-   */
-  useEffect(() => {
-    let results = [...notes];
-    
-    // Filter by category if not 'All'
-    if (selectedCategory !== 'All') {
-      results = results.filter(note => 
-        note.category && note.category.toLowerCase() === selectedCategory.toLowerCase()
-      );
+  const handleUpdateNote = async (updatedNote) => {
+    try {
+      await updateNote(updatedNote);
+    } catch (error) {
+      console.error('Error updating note:', error);
     }
-    
-    // Filter by search query if provided
-    if (searchQuery && searchQuery.trim() !== '') {
-      const searchTerm = searchQuery.toLowerCase().trim();
-      
-      results = results.filter(note => {
-        if (!note) return false;
-        
-        // Check title
-        const hasTitleMatch = note.title && 
-                            typeof note.title === 'string' && 
-                            note.title.toLowerCase().includes(searchTerm);
-        if (hasTitleMatch) return true;
-        
-        // Check description
-        const hasDescriptionMatch = note.description && 
-                                  typeof note.description === 'string' && 
-                                  note.description.toLowerCase().includes(searchTerm);
-        if (hasDescriptionMatch) return true;
-        
-        // Check tags if they exist
-        if (Array.isArray(note.tags)) {
-          const hasTagMatch = note.tags.some(tag => 
-            tag && typeof tag === 'string' && tag.toLowerCase().includes(searchTerm)
-          );
-          if (hasTagMatch) return true;
-        }
-        
-        return false;
-      });
-    }
-    
-    setFilteredNotes(results);
-  }, [searchQuery, notes, selectedCategory])
+  };
 
-  const handleAddNote = (newNote) => {
-    axios
-      .post(API_ENDPOINTS.NOTES, newNote)
-      .then((response) => {
-        const updatedNotes = [...notes, response.data]
-        setNotes(updatedNotes)
-        // Update filtered notes if needed
-        if (!searchQuery.trim()) {
-          setFilteredNotes(updatedNotes)
-        }
-        setIsAddNoteOpen(false)
-      })
-      .catch((error) => {
-        console.error("Error adding note:", error)
-      })
-  }
-  
-  // Add a new category
+  const handleDeleteNote = async (noteId) => {
+    try {
+      await deleteNote(noteId);
+    } catch (error) {
+      console.error('Error deleting note:', error);
+    }
+  };
+
+  // Handle category operations
   const handleAddCategory = async (categoryData) => {
     try {
-      console.log('Adding new category:', categoryData);
-      const response = await axios.post(API_ENDPOINTS.CATEGORIES, categoryData);
-      const newCategory = response.data;
-      
-      // Update categories list, keeping 'All' as the first item
-      setCategories(prevCategories => {
-        const updatedCategories = [
-          { id: 'all', name: 'All' },
-          ...prevCategories.filter(cat => cat.id !== 'all'),
-          newCategory
-        ];
-        console.log('Updated categories:', updatedCategories);
-        return updatedCategories;
-      });
-      
-      // Update category config
-      setCategoryConfig(prevConfig => {
-        const updatedConfig = {
-          ...prevConfig,
-          [newCategory.name]: { color: newCategory.color }
-        };
-        console.log('Updated category config:', updatedConfig);
-        return updatedConfig;
-      });
-      
-      return newCategory;
+      await addCategory(categoryData);
+      return true;
     } catch (error) {
-      console.error("Error adding category:", error);
+      console.error('Error adding category:', error);
       throw error;
     }
+  };
+
+  // UI handlers
+  const handleOpenAddNote = () => setIsAddNoteOpen(true);
+  const handleCloseAddNote = () => setIsAddNoteOpen(false);
+  // Handle search and category changes
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+  };
+
+  const handleCategoryChange = (category) => {
+    setSelectedCategory(category);
+  };
+
+  if (isLoadingNotes || isLoadingCategories) {
+    return (
+      <Container maxWidth="lg">
+        <Box sx={{ my: 4, textAlign: 'center' }}>
+          <p>Loading...</p>
+        </Box>
+      </Container>
+    );
   }
 
-  const handleUpdateNote = (updatedNote) => {
-    axios
-      .put(`${API_ENDPOINTS.NOTES}/${updatedNote.id}`, updatedNote)
-      .then((response) => {
-        const updatedNotes = notes.map(note => 
-          note.id === updatedNote.id ? response.data : note
-        )
-        setNotes(updatedNotes)
-        // Update filtered notes if needed
-        if (!searchQuery.trim()) {
-          setFilteredNotes(updatedNotes)
-        }
-      })
-      .catch((error) => {
-        console.error("Error updating note:", error)
-      })
+  // Show error state if any
+  if (notesError || categoriesError) {
+    return (
+      <Container maxWidth="lg">
+        <Box sx={{ my: 4, color: 'error.main' }}>
+          <p>Error loading data. Please try again later.</p>
+          {notesError && <p>Notes error: {notesError}</p>}
+          {categoriesError && <p>Categories error: {categoriesError}</p>}
+        </Box>
+      </Container>
+    );
   }
-
-  const handleDeleteNote = (noteId) => {
-    axios
-      .delete(`${API_ENDPOINTS.NOTES}/${noteId}`)
-      .then(() => {
-        const updatedNotes = notes.filter(note => note.id !== noteId)
-        setNotes(updatedNotes)
-        // Update filtered notes if needed
-        if (!searchQuery.trim()) {
-          setFilteredNotes(updatedNotes)
-        }
-      })
-      .catch((error) => {
-        console.error("Error deleting note:", error)
-      })
-  }
-
-  const handleOpenAddNote = () => setIsAddNoteOpen(true)
-  const handleCloseAddNote = () => setIsAddNoteOpen(false)
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
-      <Container maxWidth="lg" sx={{pt: 2}}>
-        {/* 
-          SearchBar Component
-          - Controlled component that manages the search input
-          - searchQuery: Current search term (controlled by parent)
-          - onSearchChange: Callback to update search term in parent's state
-          - The search happens in real-time as the user types
-        */}
+      <Container maxWidth="lg" sx={{ pt: 2 }}>
         <SearchBar 
           searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
+          onSearchChange={handleSearch}
         />
-        <Box sx={{mt: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginX: 3}}>
+        
+        <Box sx={{ 
+          mt: 2, 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center', 
+          marginX: 3 
+        }}>
           <SelectBar 
-            selectedCategory={selectedCategory} 
-            onCategoryChange={setSelectedCategory}
+            selectedCategory={selectedCategory}
+            onCategoryChange={handleCategoryChange}
             categories={categories}
           />
-          <Button sx={{ ml: 3 }} size="large" variant="contained" onClick={handleOpenAddNote}>
-            <AddIcon /> Add
+          <Button 
+            sx={{ ml: 3 }} 
+            size="large" 
+            variant="contained" 
+            onClick={handleOpenAddNote}
+            startIcon={<AddIcon />}
+          >
+            Add
           </Button>
         </Box>
-        {/**
-         * Responsive Grid Layout for Notes:
-         * - On extra small screens: 1 column (full width)
-         * - On small screens: 2 columns (50% width each)
-         * - On large screens: 3 columns (33.33% width each)
-         */}
-        <Grid container spacing={2} sx={{mt: 2, width: '100%', display: 'flex', flexWrap: 'wrap'}}>
-          {/* 
-            Conditional Rendering:
-            - If there are filtered notes, map through and display them
-            - If no notes match the search, show a helpful message
-          */}
-          {filteredNotes && filteredNotes.length > 0 ? (
-            filteredNotes.map((note) => note && (
-            <Grid item key={note.id} xs={12} sm={6} lg={4} sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              minWidth: 0, // Prevent overflow
-              width: { xs: '100%', sm: 'calc(50% - 16px)', lg: 'calc(33.333% - 16px)' },
-              flex: '0 0 auto',
-              boxSizing: 'border-box'
+
+        <Grid 
+          container 
+          spacing={2} 
+          sx={{ 
+            mt: 2, 
+            width: '100%', 
+            display: 'flex', 
+            flexWrap: 'wrap' 
+          }}
+        >
+          {filteredNotes.length === 0 ? (
+            <Box sx={{ 
+              width: '100%', 
+              textAlign: 'center', 
+              mt: 4, 
+              color: 'text.secondary' 
             }}>
-              <Note 
-                note={note} 
-                onUpdate={handleUpdateNote}
-                onDelete={handleDeleteNote}
-              />
-            </Grid>
-          ))) : (
-            <Box sx={{ width: '100%', textAlign: 'center', mt: 4, color: 'text.secondary' }}>
               {searchQuery && searchQuery.trim() !== '' 
                 ? `No notes found matching "${searchQuery}"`
                 : selectedCategory !== 'All'
                   ? `No notes found in the "${selectedCategory}" category`
                   : 'No notes available. Create your first note to get started!'}
             </Box>
+          ) : (
+            filteredNotes.map((note) => (
+              <Grid 
+                item 
+                key={note.id} 
+                xs={12} 
+                sm={6} 
+                lg={4} 
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  minWidth: 0,
+                  width: { xs: '100%', sm: 'calc(50% - 16px)', lg: 'calc(33.333% - 16px)' },
+                  flex: '0 0 auto',
+                  boxSizing: 'border-box'
+                }}
+              >
+                <Note 
+                  note={note} 
+                  onUpdate={handleUpdateNote}
+                  onDelete={handleDeleteNote}
+                  categoryConfig={categoryConfig}
+                />
+              </Grid>
+            ))
           )}
         </Grid>
+
+        <AddNote 
+          open={isAddNoteOpen} 
+          onClose={handleCloseAddNote}
+          onAddNote={handleAddNote}
+          categories={categories.filter(cat => cat.id !== 'all')}
+          categoryConfig={categoryConfig}
+          onAddCategory={handleAddCategory}
+        />
       </Container>
-      <AddNote 
-        onAddNote={handleAddNote} 
-        onAddCategory={handleAddCategory}
-        categories={categories}
-        categoryConfig={categoryConfig}
-        open={isAddNoteOpen} 
-        onClose={handleCloseAddNote} 
-      />
     </Box>
   )
 }
 
-export default Home
+export default Home;
