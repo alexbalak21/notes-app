@@ -13,6 +13,8 @@ const Home = () => {
   const [isAddNoteOpen, setIsAddNoteOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('All')
+  // Default to an array with 'All' as the first category
+  const [categories, setCategories] = useState([{ id: 'all', name: 'All' }])
 
   /**
    * Fetches all notes from the API when the component mounts.
@@ -33,6 +35,36 @@ const Home = () => {
     }
     
     fetchNotes()
+  }, [])
+
+  /**
+   * Fetches all unique categories from the API when the component mounts
+   * and updates the categories state with 'All' as the first option
+   */
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get("http://127.0.0.1:5000/api/categories")
+        // Add 'All' as the first category
+        const allCategories = [
+          { id: 'all', name: 'All' },
+          ...response.data
+        ]
+        setCategories(allCategories)
+        console.log("Fetched categories:", allCategories)
+      } catch (error) {
+        console.error("Error fetching categories:", error)
+        // If the endpoint fails, fall back to default categories
+        setCategories([
+          { id: 'all', name: 'All' },
+          { id: 1, name: 'Home', color: '#2196f3' },
+          { id: 2, name: 'Work', color: '#4caf50' },
+          { id: 3, name: 'Personal', color: '#9c27b0' }
+        ])
+      }
+    }
+    
+    fetchCategories()
   }, [])
   
   /**
@@ -149,12 +181,13 @@ const Home = () => {
         */}
         <SearchBar 
           searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}x
+          onSearchChange={setSearchQuery}
         />
         <Box sx={{mt: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginX: 3}}>
           <SelectBar 
-            selectedCategory={selectedCategory}
+            selectedCategory={selectedCategory} 
             onCategoryChange={setSelectedCategory}
+            categories={categories}
           />
           <Button sx={{ ml: 3 }} size="large" variant="contained" onClick={handleOpenAddNote}>
             <AddIcon /> Add

@@ -44,21 +44,35 @@ const StyledChip = styled(Chip, {
   },
 }));
 
-// Category color mapping
-const CATEGORY_COLORS = {
+// Default category colors if none provided
+const DEFAULT_CATEGORY_COLORS = {
+  'All': '#9e9e9e',
   'Home': '#FFA726',
   'Work': '#42A5F5',
   'Personal': '#66BB6A',
   'default': '#9E9E9E'
 };
 
+/**
+ * CategoryChip Component
+ * A styled chip component for displaying categories with optional color
+ * 
+ * @param {Object} props - Component props
+ * @param {string} [props.category='All'] - Category name to display
+ * @param {boolean} [props.selected=false] - Whether the chip is selected
+ * @param {Function} [props.onClick] - Click handler for the chip
+ * @param {Object} [props.sx={}] - Additional styles to apply
+ * @param {string} [props.color] - Custom color for the category dot (overrides default)
+ */
 const CategoryChip = ({ 
   category = 'All', 
   selected = false, 
   onClick,
-  sx = {} 
+  sx = {},
+  color: customColor
 }) => {
-  const color = CATEGORY_COLORS[category] || CATEGORY_COLORS.default;
+  // Use custom color if provided, otherwise use default from mapping, or fallback gray
+  const color = customColor || DEFAULT_CATEGORY_COLORS[category] || '#9E9E9E';
   
   return (
     <StyledChip
