@@ -183,6 +183,7 @@ const Home = () => {
                 }}
               >
                 <Note 
+                  key={note.id}
                   note={note} 
                   onUpdate={handleUpdateNote}
                   onDelete={handleDeleteNote}

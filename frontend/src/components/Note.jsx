@@ -21,7 +21,7 @@ import CategoryChip from "./CategoryChip"
 // Configurable character limit for note descriptions
 const DESCRIPTION_CHAR_LIMIT = 450;
 
-const Note = ({note, onUpdate, onDelete}) => {
+const Note = ({note, onUpdate, onDelete, categoryConfig = {}}) => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [editedNote, setEditedNote] = useState({...note})
@@ -79,6 +79,7 @@ const Note = ({note, onUpdate, onDelete}) => {
               <Box sx={{ position: 'absolute', top: 12, right: 12 }}>
                 <CategoryChip
                     category={note.category}
+                    color={categoryConfig[note.category]?.color}
                     sx={{
                       pointerEvents: 'none', // Make it non-interactive in the note
                       backgroundColor: theme => theme.palette.mode === 'dark'
