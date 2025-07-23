@@ -12,82 +12,77 @@ const AddNote = ({open, onClose, onAddNote, onAddCategory, categories: propCateg
   const [newCategoryColor, setNewCategoryColor] = useState("#9e9e9e")
   const [showNewCategory, setShowNewCategory] = useState(false)
 
-  // Set default category when categories prop changes
+  // Set default category when categories prop changes or dialog opens
   useEffect(() => {
-    if (propCategories.length > 0 && !category) {
-      // Skip 'All' category and select the first available category
-      const firstCategory = propCategories.find(cat => cat.id !== 'all');
-      if (firstCategory) {
-        setCategory(firstCategory.name);
+    if (propCategories.length > 0) {
+      // Filter out the 'All' category
+      const validCategories = propCategories.filter(cat => cat.id !== 'all');
+      
+      // If no category is selected or the selected category doesn't exist in the list
+      if (!category || !validCategories.some(cat => cat.name === category)) {
+        // Select the first available category
+        if (validCategories.length > 0) {
+          setCategory(validCategories[0].name);
+        }
       }
     }
-  }, [propCategories]);
+  }, [propCategories, open]);
 
-  // Fetch categories when component mounts and when dialog opens
+  // Reset form when dialog is closed/opened
   useEffect(() => {
     if (open) {
-      // Fetch categories from backend
-      const fetchCategories = async () => {
-        try {
-          const response = await axios.get(API_ENDPOINTS.CATEGORIES);
-          const categoriesData = response.data;
-          
-          // Create a mapping of category names to their colors
-          const config = {};
-          categoriesData.forEach(cat => {
-            config[cat.name] = { color: cat.color };
-          });
-          
-          // Set default category to the first one if not set
-          if (categoriesData.length > 0 && !category) {
-            setCategory(categoriesData[0].name);
-          }
-        } catch (error) {
-          console.error("Error fetching categories:", error);
-        }
-      };
-      fetchCategories();
-    }
-  }, [open, category]);
-
-  // Reset form when dialog is closed
-  useEffect(() => {
-    if (!open) {
-      setTitle("")
-      setContent("")
-      setNewCategory("")
-      setNewCategoryColor("#9e9e9e")
-      setShowNewCategory(false)
-    } else {
-      // Reset to first category when opening
+      // Reset form fields when opening
+      setTitle("");
+      setContent("");
+      setNewCategory("");
+      setNewCategoryColor("#9e9e9e");
+      setShowNewCategory(false);
+      
+      // Set default category when opening
       if (propCategories.length > 0) {
-        setCategory(propCategories[0].name);
+        const firstCategory = propCategories.find(cat => cat.id !== 'all');
+        if (firstCategory) {
+          setCategory(firstCategory.name);
+        }
       }
     }
-  }, [open, propCategories])
+  }, [open]);
 
   // Add new category
   const handleAddNewCategory = async () => {
-    if (newCategory.trim() && !propCategories.some(cat => cat.name === newCategory)) {
-      try {
-        const categoryData = {
-          name: newCategory,
-          color: newCategoryColor
-        };
-        
-        console.log('Adding new category:', categoryData);
-        
-        // Use the parent's handler to add the category
-        const newCategoryData = await onAddCategory(categoryData);
-        
-        // Set the new category as selected
-        setCategory(newCategoryData.name);
-        setNewCategory("");
-        setNewCategoryColor("#9e9e9e");
-        setShowNewCategory(false);
-      } catch (error) {
-        console.error("Error adding category:", error);
-      }
+    const trimmedName = newCategory.trim();
+    if (!trimmedName) return;
+    
+    // Check if category already exists (case insensitive)
+    const categoryExists = propCategories.some(
+      cat => cat.name.toLowerCase() === trimmedName.toLowerCase()
+    );
+    
+    if (categoryExists) {
+      // If category exists, just select it
+      setCategory(trimmedName);
+      setShowNewCategory(false);
+      return;
+    }
+    
+    try {
+      const categoryData = {
+        name: trimmedName,
+        color: newCategoryColor
+      };
+      
+      console.log('Adding new category:', categoryData);
+      
+      // Use the parent's handler to add the category
+      const newCategoryData = await onAddCategory(categoryData);
+      
+      // Set the new category as selected
+      setCategory(newCategoryData.name);
+      setNewCategory("");
+      setNewCategoryColor("#9e9e9e");
+      setShowNewCategory(false);
+    } catch (error) {
+      console.error("Error adding category:", error);
     }
   };
 
@@ -176,7 +171,9 @@ const AddNote = ({open, onClose, onAddNote, onAddCategory, categories: propCateg
                       onChange={(e) => setCategory(e.target.value)}
                       fullWidth
                   >
-                    {propCategories.map((cat) => (
+                    {propCategories
+                      .filter(cat => cat.id !== 'all') // Exclude 'All' category
+                      .map((cat) => (
                         <MenuItem key={cat.id} value={cat.name}>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                             <Box sx={{ 
@@ -188,7 +185,7 @@ const AddNote = ({open, onClose, onAddNote, onAddCategory, categories: propCateg
                             {cat.name}
                           </Box>
                         </MenuItem>
-                    ))}
+                      ))}
                   </Select>
                 </FormControl>
               )}

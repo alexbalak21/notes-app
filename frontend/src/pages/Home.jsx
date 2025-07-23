@@ -42,49 +42,62 @@ const Home = () => {
   }, [])
 
   /**
-   * Fetches all unique categories from the API when the component mounts
-   * and updates the categories state with 'All'  // Fetch categories when component mounts
+   * Fetches all categories from the API when the component mounts
+   * and updates the categories state with 'All' as the first option
+   */
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get(API_ENDPOINTS.CATEGORIES)
+        console.log('Fetching categories from:', API_ENDPOINTS.CATEGORIES);
+        const response = await axios.get(API_ENDPOINTS.CATEGORIES);
+        console.log('Categories response:', response.data);
+        
+        // Filter out any potential 'All' category from the API response
+        const apiCategories = Array.isArray(response.data) 
+          ? response.data.filter(cat => cat.name.toLowerCase() !== 'all')
+          : [];
+        
         // Add 'All' as the first category
-        const allCategories = [
+        const categoriesWithAll = [
           { id: 'all', name: 'All' },
-          ...response.data
-        ]
+          ...apiCategories
+        ];
         
         // Create a mapping of category names to their colors
-        const config = {};
-        response.data.forEach(cat => {
-          config[cat.name] = { color: cat.color };
+        const categoryColorMap = {};
+        apiCategories.forEach(cat => {
+          if (cat.name) {
+            categoryColorMap[cat.name] = { color: cat.color || '#9e9e9e' };
+          }
         });
         
-        setCategories(allCategories)
-        setCategoryConfig(config)
-        console.log("Fetched categories:", allCategories)
+        setCategories(categoriesWithAll);
+        setCategoryConfig(categoryColorMap);
+        console.log('Categories set:', categoriesWithAll);
       } catch (error) {
-        console.error("Error fetching categories:", error)
+        console.error("Error fetching categories:", error);
         // If the endpoint fails, fall back to default categories
-        const defaultCategories = [
+        const defaultCategoriesList = [
           { id: 'all', name: 'All' },
           { id: 1, name: 'Home', color: '#2196f3' },
           { id: 2, name: 'Work', color: '#4caf50' },
           { id: 3, name: 'Personal', color: '#9c27b0' }
-        ]
-        setCategories(defaultCategories)
+        ];
         
-        const defaultConfig = {
+        const defaultColorMap = {
           'Home': { color: '#2196f3' },
           'Work': { color: '#4caf50' },
           'Personal': { color: '#9c27b0' }
         };
-        setCategoryConfig(defaultConfig)
+        
+        setCategories(defaultCategoriesList);
+        setCategoryConfig(defaultColorMap);
+        console.log('Using default categories:', defaultCategoriesList);
       }
-    }
+    };
     
-    fetchCategories()
-  }, [])
+    fetchCategories();
+  }, []);
 
   
   /**
@@ -155,21 +168,30 @@ const Home = () => {
   // Add a new category
   const handleAddCategory = async (categoryData) => {
     try {
+      console.log('Adding new category:', categoryData);
       const response = await axios.post(API_ENDPOINTS.CATEGORIES, categoryData);
       const newCategory = response.data;
       
-      // Update categories list
-      setCategories(prevCategories => [
-        ...prevCategories.filter(cat => cat.id !== 'all'),
-        newCategory,
-        { id: 'all', name: 'All' }
-      ]);
+      // Update categories list, keeping 'All' as the first item
+      setCategories(prevCategories => {
+        const updatedCategories = [
+          { id: 'all', name: 'All' },
+          ...prevCategories.filter(cat => cat.id !== 'all'),
+          newCategory
+        ];
+        console.log('Updated categories:', updatedCategories);
+        return updatedCategories;
+      });
       
       // Update category config
-      setCategoryConfig(prevConfig => ({
-        ...prevConfig,
-        [newCategory.name]: { color: newCategory.color }
-      }));
+      setCategoryConfig(prevConfig => {
+        const updatedConfig = {
+          ...prevConfig,
+          [newCategory.name]: { color: newCategory.color }
+        };
+        console.log('Updated category config:', updatedConfig);
+        return updatedConfig;
+      });
       
       return newCategory;
     } catch (error) {
