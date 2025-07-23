@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 import os
+import atexit
 from dotenv import load_dotenv
 from cors import init_cors, handle_notes_options, handle_note_options, handle_categories_options
 
@@ -29,9 +30,12 @@ class Note(db.Model):
     updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
     def to_dict(self):
+        # Get the category name using the relationship
+        category = Category.query.get(self.category)
         return {
             'id': self.id,
-            'category': self.category,
+            'category': category.name if category else 'Uncategorized',
+            'category_id': int(self.category),  # Convert to integer
             'title': self.title,
             'description': self.description,
             'updated_at': self.updated_at.isoformat() + 'Z'
@@ -87,6 +91,12 @@ def init_db():
                     "title": "Welcome to Notes App",
                     "description": "This is your first note. You can edit or delete it."
                 },
+                {
+                    "id": 2,
+                    "category": default_cat.id if default_cat else 2,
+                    "title": "An example note",
+                    "description": "This is an example note. You can edit or delete it."
+                },
             ]
             
             for note_data in sample_notes:
@@ -99,6 +109,37 @@ def init_db():
                 )
                 db.session.add(note)
             db.session.commit()
+
+from sqlalchemy import text
+
+def cleanup():
+    """Clean up the database when the application shuts down"""
+    with app.app_context():
+        try:
+            print("\nCleaning up database...")
+            
+            # Disable foreign key checks if using MySQL/MariaDB
+            if 'mysql' in app.config['SQLALCHEMY_DATABASE_URI'].lower():
+                db.session.execute(text('SET FOREIGN_KEY_CHECKS = 0;'))
+            
+            # Truncate tables (this will also reset auto-increment counters)
+            db.session.execute(text('TRUNCATE TABLE note;'))
+            db.session.execute(text('TRUNCATE TABLE category;'))
+            
+            # Re-enable foreign key checks if using MySQL/MariaDB
+            if 'mysql' in app.config['SQLALCHEMY_DATABASE_URI'].lower():
+                db.session.execute(text('SET FOREIGN_KEY_CHECKS = 1;'))
+                
+            db.session.commit()
+            print("Database tables truncated successfully.")
+        except Exception as e:
+            db.session.rollback()
+            print(f"Error during cleanup: {e}")
+        finally:
+            db.session.close()
+
+# Register the cleanup function to run when the app shuts down
+atexit.register(cleanup)
 
 # Initialize the database
 init_db()
