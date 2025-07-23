@@ -54,15 +54,8 @@ class Category(db.Model):
             'color': self.color
         }
 
-# Default categories configuration
-DEFAULT_CATEGORIES = [
-    {"name": "Misc", "color": "#9e9e9e"},        # Gray
-    {"name": "Work", "color": "#2196f3"},          # Blue
-    {"name": "Personal", "color": "#4caf50"},      # Green
-    {"name": "Ideas", "color": "#9c27b0"},         # Purple
-    {"name": "Shopping", "color": "#ff9800"},      # Orange
-    {"name": "Important", "color": "#f44336"}      # Red
-]
+# Import sample data
+from sample_data import SAMPLE_CATEGORIES, SAMPLE_NOTES
 
 # Create tables
 def init_db():
@@ -71,7 +64,7 @@ def init_db():
         
         # Add default categories if none exist
         if not Category.query.first():
-            for cat_data in DEFAULT_CATEGORIES:
+            for cat_data in SAMPLE_CATEGORIES:
                 category = Category(
                     name=cat_data['name'],
                     color=cat_data['color']
@@ -79,35 +72,23 @@ def init_db():
                 db.session.add(category)
             db.session.commit()
             
-        # If no notes exist, add some sample data
+        # If no notes exist, add sample data
         if not Note.query.first():
-            # Get the default category (Misc)
-            default_cat = Category.query.filter_by(name="Misc").first()
+            # Create a mapping of category names to their IDs
+            category_map = {cat.name: cat.id for cat in Category.query.all()}
             
-            sample_notes = [
-                {
-                    "id": 1,
-                    "category": default_cat.id if default_cat else 1,
-                    "title": "Welcome to Notes App",
-                    "description": "This is your first note. You can edit or delete it."
-                },
-                {
-                    "id": 2,
-                    "category": default_cat.id if default_cat else 2,
-                    "title": "An example note",
-                    "description": "This is an example note. You can edit or delete it."
-                },
-            ]
-            
-            for note_data in sample_notes:
+            # Add sample notes
+            for i, note_data in enumerate(SAMPLE_NOTES, 1):
+                category_id = category_map.get(note_data['category'], 1)  # Default to Misc if not found
                 note = Note(
-                    id=note_data['id'],
-                    category=note_data['category'],
+                    id=i,
+                    category=category_id,
                     title=note_data['title'],
                     description=note_data['description'],
-                    updated_at=datetime.utcnow()
+                    updated_at=note_data.get('created_at', datetime.utcnow())
                 )
                 db.session.add(note)
+            
             db.session.commit()
 
 from sqlalchemy import text
