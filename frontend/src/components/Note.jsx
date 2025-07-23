@@ -9,38 +9,24 @@ import {
   DialogContent,
   DialogActions,
   Button,
-  TextField,
-  IconButton as MuiIconButton,
-  styled
+  IconButton as MuiIconButton
 } from "@mui/material"
 import EditIcon from "@mui/icons-material/Edit"
 import DeleteIcon from "@mui/icons-material/Delete"
-import CloseIcon from "@mui/icons-material/Close"
 import CategoryChip from "./CategoryChip"
-
-// Configurable character limit for note descriptions
-const DESCRIPTION_CHAR_LIMIT = 450;
+import EditNote from "./EditNote"
 
 const Note = ({note, onUpdate, onDelete, categoryConfig = {}}) => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
-  const [editedNote, setEditedNote] = useState({...note})
-  const [isExpanded, setIsExpanded] = useState(false)
-
-  const isLongDescription = note.description && note.description.length > DESCRIPTION_CHAR_LIMIT
-  const displayDescription = isLongDescription && !isExpanded
-      ? `${note.description.substring(0, DESCRIPTION_CHAR_LIMIT)}...`
-      : note.description
 
   const handleEdit = (event) => {
     event.stopPropagation()
-    setEditedNote({...note})
     setIsEditing(true)
   }
 
-  const handleSave = (event) => {
-    event.preventDefault()
-    onUpdate?.(editedNote)
+  const handleSave = (updatedNote) => {
+    onUpdate?.(updatedNote)
     setIsEditing(false)
   }
 
@@ -103,29 +89,10 @@ const Note = ({note, onUpdate, onDelete, categoryConfig = {}}) => {
                 color="text.primary"
                 sx={{
                   whiteSpace: "pre-line",
-                  wordBreak: "break-word",
-                  mb: isLongDescription ? 1 : 0,
+                  wordBreak: "break-word"
                 }}>
-              {displayDescription}
+              {note.description}
             </Typography>
-            {isLongDescription && (
-                <Typography
-                    variant="caption"
-                    color="primary"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setIsExpanded(!isExpanded);
-                    }}
-                    sx={{
-                      cursor: 'pointer',
-                      '&:hover': { textDecoration: 'underline' },
-                      display: 'inline-block',
-                      fontWeight: 'medium',
-                    }}
-                >
-                  {isExpanded ? 'Show less' : 'Read more'}
-                </Typography>
-            )}
           </Box>
         </>
 
@@ -190,79 +157,13 @@ const Note = ({note, onUpdate, onDelete, categoryConfig = {}}) => {
         </Dialog>
 
         {/* Edit Note Dialog */}
-        <Dialog
-            open={isEditing}
-            onClose={() => {
-              setIsEditing(false);
-              // Reset expansion state when closing dialog
-              setIsExpanded(false);
-            }}
-            fullWidth
-            maxWidth="sm"
-        >
-          <DialogTitle>
-            <Box display="flex" justifyContent="space-between" alignItems="center">
-              Edit Note
-              <MuiIconButton onClick={() => setIsEditing(false)} size="small">
-                <CloseIcon />
-              </MuiIconButton>
-            </Box>
-          </DialogTitle>
-          <form onSubmit={handleSave}>
-            <DialogContent>
-              <TextField
-                  autoFocus
-                  margin="dense"
-                  label="Title"
-                  type="text"
-                  fullWidth
-                  variant="outlined"
-                  value={editedNote.title || ''}
-                  onChange={(e) => setEditedNote({...editedNote, title: e.target.value})}
-                  sx={{mb: 2}}
-              />
-              <TextField
-                  fullWidth
-                  multiline
-                  rows={8}
-                  label="Description"
-                  value={editedNote.description}
-                  onChange={(e) => setEditedNote({...editedNote, description: e.target.value})}
-                  margin="normal"
-                  variant="outlined"
-                  inputProps={{
-                    maxLength: DESCRIPTION_CHAR_LIMIT,
-                  }}
-                  helperText={`${editedNote.description?.length || 0}/${DESCRIPTION_CHAR_LIMIT} characters`}
-                  FormHelperTextProps={{
-                    sx: {
-                      textAlign: 'right',
-                      mx: 0,
-                      color: (editedNote.description?.length || 0) >= DESCRIPTION_CHAR_LIMIT ? 'error.main' : 'text.secondary',
-                    }
-                  }}
-              />
-            </DialogContent>
-            <DialogActions sx={{px: 3, pb: 3}}>
-              <Button
-                  onClick={() => setIsEditing(false)}
-                  variant="outlined"
-                  color="secondary"
-                  type="button"
-              >
-                Cancel
-              </Button>
-              <Button
-                  type="submit"
-                  variant="contained"
-                  color="primary"
-                  disabled={!editedNote.title?.trim()}
-              >
-                Save Changes
-              </Button>
-            </DialogActions>
-          </form>
-        </Dialog>
+        <EditNote
+          open={isEditing}
+          onClose={() => setIsEditing(false)}
+          note={note}
+          onSave={handleSave}
+          categoryConfig={categoryConfig}
+        />
       </Paper>
   )
 }

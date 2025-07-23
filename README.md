@@ -7,41 +7,60 @@ A modern, full-stack notes application built with React, Vite, Material-UI, and 
 - 📝 **Note Management**
   - Create, edit, and delete notes
   - Rich text formatting support
-  - Markdown support
+  - Character limit with counter
+  - Responsive card layout
   
 - 🏷️ **Categories**
-  - Create custom categories
-  - Assign colors to categories
+  - Create custom categories with colors
+  - Automatic 'All' category
   - Filter notes by category
+  - Color-coded category indicators
   
-- 🎨 **Customization**
-  - Color-coded categories
-  - Clean, modern UI with Material-UI
+- 🔍 **Search & Filter**
+  - Real-time search across titles and content
+  - Combine search with category filters
+  - Clear search functionality
+  
+- 🎨 **UI/UX**
+  - Clean, modern interface with Material-UI
   - Responsive design for all devices
+  - Smooth animations and transitions
+  - Intuitive category management
   
 - ⚡ **Performance**
-  - Built with Vite for fast development
-  - Optimized production builds
+  - Optimized rendering with React hooks
   - Efficient state management
+  - Fast API responses with Flask
+  - Built with Vite for rapid development
 
 ## 🛠️ Tech Stack
 
 **Frontend**
-- ⚛️ React 18
-- 🎨 Material-UI (MUI)
-- 🔄 React Router
-- 📡 Axios for API calls
-- 🎯 Vite build tool
+- ⚛️ React 18 with Hooks
+- 🎨 Material-UI (MUI) v5
+- 🔄 React Router v6
+- 📡 Axios for API communication
+- 🎯 Vite for ultra-fast development
+- 🎨 Emotion for styling
+- 🔍 Custom hooks for data management
 
 **Backend**
 - 🐍 Python 3
-- 🌶️ Flask
+- 🌶️ Flask RESTful API
 - 🗄️ SQLite Database
-- 🔄 Flask-CORS for cross-origin requests
+- 🔄 Flask-CORS for secure cross-origin requests
+- 🏗️ RESTful endpoints for notes and categories
+
+**State Management**
+- React Context API
+- Custom hooks for data fetching
+- Optimistic UI updates
 
 **Development Tools**
-- 🛠️ npm / yarn
-- 🧪 ESLint
+- 🛠️ npm / yarn package management
+- 🧪 ESLint for code quality
+- 🔍 React Developer Tools
+- 🌐 Browser DevTools
 - 🔄 Hot Module Replacement (HMR)
 
 ## 🚀 Getting Started
