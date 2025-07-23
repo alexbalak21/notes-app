@@ -34,16 +34,31 @@ const AddNote = ({open, onClose, onAddNote}) => {
   }, [open])
 
   // Add new category
-  const handleAddNewCategory = () => {
+  const handleAddNewCategory = async () => {
     if (newCategory.trim() && !categories.includes(newCategory)) {
-      const updatedCategories = [...categories, newCategory]
-      // Save the selected color for the new category
-      categoryConfig[newCategory] = { color: newCategoryColor };
-      setCategories(updatedCategories)
-      setCategory(newCategory)
-      setNewCategory("")
-      setNewCategoryColor("#757575") // Reset to default color
-      setShowNewCategory(false)
+      try {
+        const categoryData = {
+          name: newCategory,
+          color: newCategoryColor
+        };
+        
+        console.log('Posting new category:', categoryData);
+        
+        // Post the new category to the backend
+        await axios.post("http://127.0.0.1:5000/api/categories", categoryData);
+        
+        // Update local state if the API call is successful
+        const updatedCategories = [...categories, newCategory];
+        categoryConfig[newCategory] = { color: newCategoryColor };
+        setCategories(updatedCategories);
+        setCategory(newCategory);
+        setNewCategory("");
+        setNewCategoryColor("#757575"); // Reset to default color
+        setShowNewCategory(false);
+      } catch (error) {
+        console.error("Error adding category:", error);
+        // Optionally, you could add error handling UI here
+      }
     }
   }
 

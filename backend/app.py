@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 import os
 from dotenv import load_dotenv
-from cors import init_cors, handle_notes_options, handle_note_options
+from cors import init_cors, handle_notes_options, handle_note_options, handle_categories_options
 
 # Load environment variables from .flaskenv file
 load_dotenv()
@@ -23,7 +23,7 @@ init_cors(app)
 # Define Note model
 class Note(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    category = db.Column(db.String(50), nullable=False, default='Uncategorized')
+    category = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False)
     title = db.Column(db.String(200), nullable=False, default='')
     description = db.Column(db.Text, nullable=True)
     updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
@@ -35,6 +35,19 @@ class Note(db.Model):
             'title': self.title,
             'description': self.description,
             'updated_at': self.updated_at.isoformat() + 'Z'
+        }
+
+# Define Category model
+class Category(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), nullable=False)
+    color = db.Column(db.String(7), nullable=False)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'color': self.color
         }
 
 # Create tables
@@ -127,4 +140,37 @@ def update_note(note_id):
     
     db.session.commit()
     return jsonify(note.to_dict()), 200
+
+# Category endpoints
+@app.route('/api/categories', methods=['OPTIONS'])
+def handle_categories_options_route():
+    return handle_categories_options()
+
+@app.route('/api/categories', methods=['POST'])
+def create_category():
+    data = request.get_json()
+    
+    # Validate required fields
+    if not data or 'name' not in data or 'color' not in data:
+        return jsonify({"error": "Name and color are required"}), 400
+    
+    # Check if category with this name already exists
+    if Category.query.filter_by(name=data['name']).first():
+        return jsonify({"error": "A category with this name already exists"}), 400
+    
+    # Create new category
+    new_category = Category(
+        name=data['name'],
+        color=data['color']
+    )
+    
+    db.session.add(new_category)
+    db.session.commit()
+    
+    return jsonify(new_category.to_dict()), 201
+
+@app.route('/api/categories', methods=['GET'])
+def get_categories():
+    categories = Category.query.all()
+    return jsonify([category.to_dict() for category in categories])
 

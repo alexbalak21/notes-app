@@ -16,3 +16,17 @@ content-type: application/json
   "title" : "test title",
   "description" : "test description"
 }
+
+###POST Category
+POST http://127.0.0.1:5000/api/categories
+content-type: application/json
+
+{
+  "name": "Work",
+  "color": "#2196f3"
+}
+
+###GET Categories
+GET http://127.0.0.1:5000/api/categories
+content-type: application/json
+
