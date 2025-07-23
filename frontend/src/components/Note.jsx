@@ -162,6 +162,11 @@ const Note = ({note, onUpdate, onDelete, categoryConfig = {}}) => {
           onClose={() => setIsEditing(false)}
           note={note}
           onSave={handleSave}
+          categories={Object.entries(categoryConfig).map(([name, config]) => ({
+            id: name.toLowerCase(),
+            name,
+            color: config.color
+          }))}
           categoryConfig={categoryConfig}
         />
       </Paper>

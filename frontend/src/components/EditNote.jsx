@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -7,9 +7,26 @@ import {
   Button,
   TextField,
   IconButton as MuiIconButton,
-  Box
+  Box,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  FormHelperText,
+  styled
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+
+// Simple Dot component for category colors
+const Dot = styled('span')(({ color }) => ({
+  display: 'inline-block',
+  width: 12,
+  height: 12,
+  borderRadius: '50%',
+  backgroundColor: color,
+  flexShrink: 0
+}));
+
 
 const EditNote = ({ 
   open, 
@@ -20,6 +37,23 @@ const EditNote = ({
   categoryConfig = {} 
 }) => {
   const [editedNote, setEditedNote] = useState({...note});
+  const [availableCategories, setAvailableCategories] = useState([]);
+
+  // Filter out the 'All' category and set available categories
+  useEffect(() => {
+    if (categories && categories.length > 0) {
+      const filtered = categories.filter(cat => cat.id !== 'all');
+      setAvailableCategories(filtered);
+      
+      // Set default category if not set
+      if (!editedNote.category && filtered.length > 0) {
+        setEditedNote(prev => ({
+          ...prev,
+          category: filtered[0].name
+        }));
+      }
+    }
+  }, [categories]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -65,6 +99,42 @@ const EditNote = ({
             sx={{ mb: 2 }}
             required
           />
+          
+          <FormControl fullWidth margin="normal">
+            <InputLabel id="category-select-label">Category</InputLabel>
+            <Select
+              labelId="category-select-label"
+              id="category-select"
+              name="category"
+              value={editedNote.category || ''}
+              label="Category"
+              onChange={handleChange}
+              renderValue={(selected) => (
+                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                <Dot color={categoryConfig[selected]?.color || 'grey.500'} />  {selected}
+                </Box>
+              )}
+            >
+              {availableCategories.map((category) => (
+                <MenuItem key={category.id} value={category.name}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
+                    <Box 
+                      sx={{
+                        width: 12,
+                        height: 12,
+                        borderRadius: '50%',
+                        backgroundColor: categoryConfig[category.name]?.color || 'grey.500',
+                        flexShrink: 0
+                      }}
+                    />
+                    {category.name}
+                  </Box>
+                </MenuItem>
+              ))}
+            </Select>
+            <FormHelperText>Select a category for this note</FormHelperText>
+          </FormControl>
+
           <TextField
             fullWidth
             multiline
@@ -75,6 +145,7 @@ const EditNote = ({
             onChange={handleChange}
             margin="normal"
             variant="outlined"
+            sx={{ mt: 3 }}
           />
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 3 }}>
