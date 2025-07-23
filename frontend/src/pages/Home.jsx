@@ -7,6 +7,9 @@ import SearchBar from "../components/SearchBar"
 import SelectBar from "../components/SelectBar"
 import AddIcon from "@mui/icons-material/Add";
 
+// Import API configuration
+import { API_ENDPOINTS } from '../config';
+
 const Home = () => {
   const [notes, setNotes] = useState([])
   const [filteredNotes, setFilteredNotes] = useState([])
@@ -15,6 +18,7 @@ const Home = () => {
   const [selectedCategory, setSelectedCategory] = useState('All')
   // Default to an array with 'All' as the first category
   const [categories, setCategories] = useState([{ id: 'all', name: 'All' }])
+  const [categoryConfig, setCategoryConfig] = useState({})
 
   /**
    * Fetches all notes from the API when the component mounts.
@@ -25,7 +29,7 @@ const Home = () => {
   useEffect(() => {
     const fetchNotes = async () => {
       try {
-        const response = await axios.get("http://127.0.0.1:5000/api/notes")
+        const response = await axios.get(API_ENDPOINTS.NOTES)
         setNotes(response.data)
         setFilteredNotes(response.data)
         console.log("Fetched notes:", response.data)
@@ -39,33 +43,49 @@ const Home = () => {
 
   /**
    * Fetches all unique categories from the API when the component mounts
-   * and updates the categories state with 'All' as the first option
-   */
+   * and updates the categories state with 'All'  // Fetch categories when component mounts
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get("http://127.0.0.1:5000/api/categories")
+        const response = await axios.get(API_ENDPOINTS.CATEGORIES)
         // Add 'All' as the first category
         const allCategories = [
           { id: 'all', name: 'All' },
           ...response.data
         ]
+        
+        // Create a mapping of category names to their colors
+        const config = {};
+        response.data.forEach(cat => {
+          config[cat.name] = { color: cat.color };
+        });
+        
         setCategories(allCategories)
+        setCategoryConfig(config)
         console.log("Fetched categories:", allCategories)
       } catch (error) {
         console.error("Error fetching categories:", error)
         // If the endpoint fails, fall back to default categories
-        setCategories([
+        const defaultCategories = [
           { id: 'all', name: 'All' },
           { id: 1, name: 'Home', color: '#2196f3' },
           { id: 2, name: 'Work', color: '#4caf50' },
           { id: 3, name: 'Personal', color: '#9c27b0' }
-        ])
+        ]
+        setCategories(defaultCategories)
+        
+        const defaultConfig = {
+          'Home': { color: '#2196f3' },
+          'Work': { color: '#4caf50' },
+          'Personal': { color: '#9c27b0' }
+        };
+        setCategoryConfig(defaultConfig)
       }
     }
     
     fetchCategories()
   }, [])
+
   
   /**
    * Filters notes based on search query and selected category.
@@ -117,7 +137,7 @@ const Home = () => {
 
   const handleAddNote = (newNote) => {
     axios
-      .post("http://127.0.0.1:5000/api/notes", newNote)
+      .post(API_ENDPOINTS.NOTES, newNote)
       .then((response) => {
         const updatedNotes = [...notes, response.data]
         setNotes(updatedNotes)
@@ -131,10 +151,36 @@ const Home = () => {
         console.error("Error adding note:", error)
       })
   }
+  
+  // Add a new category
+  const handleAddCategory = async (categoryData) => {
+    try {
+      const response = await axios.post(API_ENDPOINTS.CATEGORIES, categoryData);
+      const newCategory = response.data;
+      
+      // Update categories list
+      setCategories(prevCategories => [
+        ...prevCategories.filter(cat => cat.id !== 'all'),
+        newCategory,
+        { id: 'all', name: 'All' }
+      ]);
+      
+      // Update category config
+      setCategoryConfig(prevConfig => ({
+        ...prevConfig,
+        [newCategory.name]: { color: newCategory.color }
+      }));
+      
+      return newCategory;
+    } catch (error) {
+      console.error("Error adding category:", error);
+      throw error;
+    }
+  }
 
   const handleUpdateNote = (updatedNote) => {
     axios
-      .put(`http://127.0.0.1:5000/api/notes/${updatedNote.id}`, updatedNote)
+      .put(`${API_ENDPOINTS.NOTES}/${updatedNote.id}`, updatedNote)
       .then((response) => {
         const updatedNotes = notes.map(note => 
           note.id === updatedNote.id ? response.data : note
@@ -152,7 +198,7 @@ const Home = () => {
 
   const handleDeleteNote = (noteId) => {
     axios
-      .delete(`http://127.0.0.1:5000/api/notes/${noteId}`)
+      .delete(`${API_ENDPOINTS.NOTES}/${noteId}`)
       .then(() => {
         const updatedNotes = notes.filter(note => note.id !== noteId)
         setNotes(updatedNotes)
@@ -232,7 +278,14 @@ const Home = () => {
           )}
         </Grid>
       </Container>
-      <AddNote onAddNote={handleAddNote} open={isAddNoteOpen} onClose={handleCloseAddNote} />
+      <AddNote 
+        onAddNote={handleAddNote} 
+        onAddCategory={handleAddCategory}
+        categories={categories}
+        categoryConfig={categoryConfig}
+        open={isAddNoteOpen} 
+        onClose={handleCloseAddNote} 
+      />
     </Box>
   )
 }

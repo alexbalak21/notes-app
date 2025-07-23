@@ -2,50 +2,53 @@ import {Box, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextFiel
 import {Close as CloseIcon, Add as AddIcon, Clear as ClearIcon} from "@mui/icons-material"
 import {useState, useEffect, useRef} from "react";
 import axios from 'axios';
+import { API_ENDPOINTS } from '../config';
 
-const AddNote = ({open, onClose, onAddNote}) => {
+const AddNote = ({open, onClose, onAddNote, onAddCategory, categories: propCategories = [], categoryConfig: propCategoryConfig = {}}) => {
   const [title, setTitle] = useState("")
   const [content, setContent] = useState("")
   const [category, setCategory] = useState("")
-  const [categories, setCategories] = useState([])
-  const [categoryConfig, setCategoryConfig] = useState({})
   const [newCategory, setNewCategory] = useState("")
   const [newCategoryColor, setNewCategoryColor] = useState("#9e9e9e")
   const [showNewCategory, setShowNewCategory] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
 
-  // Fetch categories from backend
-  const fetchCategories = async () => {
-    try {
-      const response = await axios.get("http://127.0.0.1:5000/api/categories");
-      const categoriesData = response.data;
-      
-      // Create a mapping of category names to their colors
-      const config = {};
-      categoriesData.forEach(cat => {
-        config[cat.name] = { color: cat.color };
-      });
-      
-      setCategoryConfig(config);
-      setCategories(categoriesData.map(cat => cat.name));
-      
-      // Set default category to the first one if not set
-      if (categoriesData.length > 0 && !category) {
-        setCategory(categoriesData[0].name);
+  // Set default category when categories prop changes
+  useEffect(() => {
+    if (propCategories.length > 0 && !category) {
+      // Skip 'All' category and select the first available category
+      const firstCategory = propCategories.find(cat => cat.id !== 'all');
+      if (firstCategory) {
+        setCategory(firstCategory.name);
       }
-    } catch (error) {
-      console.error("Error fetching categories:", error);
-    } finally {
-      setIsLoading(false);
     }
-  };
+  }, [propCategories]);
 
   // Fetch categories when component mounts and when dialog opens
   useEffect(() => {
     if (open) {
+      // Fetch categories from backend
+      const fetchCategories = async () => {
+        try {
+          const response = await axios.get(API_ENDPOINTS.CATEGORIES);
+          const categoriesData = response.data;
+          
+          // Create a mapping of category names to their colors
+          const config = {};
+          categoriesData.forEach(cat => {
+            config[cat.name] = { color: cat.color };
+          });
+          
+          // Set default category to the first one if not set
+          if (categoriesData.length > 0 && !category) {
+            setCategory(categoriesData[0].name);
+          }
+        } catch (error) {
+          console.error("Error fetching categories:", error);
+        }
+      };
       fetchCategories();
     }
-  }, [open]);
+  }, [open, category]);
 
   // Reset form when dialog is closed
   useEffect(() => {
@@ -57,31 +60,28 @@ const AddNote = ({open, onClose, onAddNote}) => {
       setShowNewCategory(false)
     } else {
       // Reset to first category when opening
-      if (categories.length > 0) {
-        setCategory(categories[0]);
+      if (propCategories.length > 0) {
+        setCategory(propCategories[0].name);
       }
     }
-  }, [open, categories])
+  }, [open, propCategories])
 
   // Add new category
   const handleAddNewCategory = async () => {
-    if (newCategory.trim() && !categories.includes(newCategory)) {
+    if (newCategory.trim() && !propCategories.some(cat => cat.name === newCategory)) {
       try {
         const categoryData = {
           name: newCategory,
           color: newCategoryColor
         };
         
-        console.log('Posting new category:', categoryData);
+        console.log('Adding new category:', categoryData);
         
-        // Post the new category to the backend
-        await axios.post("http://127.0.0.1:5000/api/categories", categoryData);
-        
-        // Refresh categories from backend
-        await fetchCategories();
+        // Use the parent's handler to add the category
+        const newCategoryData = await onAddCategory(categoryData);
         
         // Set the new category as selected
-        setCategory(newCategory);
+        setCategory(newCategoryData.name);
         setNewCategory("");
         setNewCategoryColor("#9e9e9e");
         setShowNewCategory(false);
@@ -89,14 +89,14 @@ const AddNote = ({open, onClose, onAddNote}) => {
         console.error("Error adding category:", error);
       }
     }
-  }
+  };
 
   // Submit form
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (title.trim() && content.trim()) {
       try {
-        const response = await axios.post("http://127.0.0.1:5000/api/notes", {
+        const response = await axios.post(API_ENDPOINTS.NOTES, {
           title,
           description: content,
           category: category,
@@ -176,20 +176,16 @@ const AddNote = ({open, onClose, onAddNote}) => {
                       onChange={(e) => setCategory(e.target.value)}
                       fullWidth
                   >
-                    {categories.map((cat) => (
-                        <MenuItem key={cat} value={cat}>
-                          <Box display="flex" justifyContent="space-between" alignItems="center" width="100%">
-                            <span>{cat}</span>
-                            <Box 
-                              sx={{
-                                width: 12,
-                                height: 12,
-                                borderRadius: '50%',
-                                backgroundColor: categoryConfig[cat]?.color || '#757575',
-                                ml: 1,
-                                flexShrink: 0
-                              }}
-                            />
+                    {propCategories.map((cat) => (
+                        <MenuItem key={cat.id} value={cat.name}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Box sx={{ 
+                              width: 12, 
+                              height: 12, 
+                              borderRadius: '50%', 
+                              backgroundColor: cat.color || '#9e9e9e' 
+                            }} />
+                            {cat.name}
                           </Box>
                         </MenuItem>
                     ))}
