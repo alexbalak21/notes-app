@@ -50,17 +50,45 @@ class Category(db.Model):
             'color': self.color
         }
 
+# Default categories configuration
+DEFAULT_CATEGORIES = [
+    {"name": "Misc", "color": "#9e9e9e"},        # Gray
+    {"name": "Work", "color": "#2196f3"},          # Blue
+    {"name": "Personal", "color": "#4caf50"},      # Green
+    {"name": "Ideas", "color": "#9c27b0"},         # Purple
+    {"name": "Shopping", "color": "#ff9800"},      # Orange
+    {"name": "Important", "color": "#f44336"}      # Red
+]
+
 # Create tables
 def init_db():
     with app.app_context():
         db.create_all()
+        
+        # Add default categories if none exist
+        if not Category.query.first():
+            for cat_data in DEFAULT_CATEGORIES:
+                category = Category(
+                    name=cat_data['name'],
+                    color=cat_data['color']
+                )
+                db.session.add(category)
+            db.session.commit()
+            
         # If no notes exist, add some sample data
         if not Note.query.first():
+            # Get the default category (Misc)
+            default_cat = Category.query.filter_by(name="Misc").first()
+            
             sample_notes = [
-                {"id": 1, "category": "Work", "title": "Finish report", "description": "Complete the quarterly report by Friday."},
-                {"id": 2, "category": "Personal", "title": "Grocery list", "description": "Milk, eggs, bread, and coffee."},
-                # Add other sample notes here
+                {
+                    "id": 1,
+                    "category": default_cat.id if default_cat else 1,
+                    "title": "Welcome to Notes App",
+                    "description": "This is your first note. You can edit or delete it."
+                },
             ]
+            
             for note_data in sample_notes:
                 note = Note(
                     id=note_data['id'],
@@ -74,9 +102,6 @@ def init_db():
 
 # Initialize the database
 init_db()
-
-# Database models and initialization are now at the top of the file
-
 
 # CORS preflight handlers
 @app.route('/api/notes', methods=['OPTIONS'])
@@ -101,7 +126,7 @@ def get_note(note_id):
 def add_note():
     data = request.get_json()
     new_note = Note(
-        category=data.get("category", "Uncategorized"),
+        category=data.get("category", "Misc"),
         title=data.get("title", ""),
         description=data.get("description", ""),
         updated_at=datetime.utcnow()
@@ -173,4 +198,3 @@ def create_category():
 def get_categories():
     categories = Category.query.all()
     return jsonify([category.to_dict() for category in categories])
-

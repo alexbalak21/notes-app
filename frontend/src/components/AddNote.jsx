@@ -3,35 +3,65 @@ import {Close as CloseIcon, Add as AddIcon, Clear as ClearIcon} from "@mui/icons
 import {useState, useEffect, useRef} from "react";
 import axios from 'axios';
 
-// Category configuration with colors
-const categoryConfig = {
-  "Home": { color: "#4caf50" }, // Green
-  "Work": { color: "#2196f3" },  // Blue
-  "Personal": { color: "#9c27b0" } // Purple
-};
-
-// Default categories
-const defaultCategories = Object.keys(categoryConfig);
-
 const AddNote = ({open, onClose, onAddNote}) => {
   const [title, setTitle] = useState("")
   const [content, setContent] = useState("")
-  const [category, setCategory] = useState("Home")
-  const [categories, setCategories] = useState(defaultCategories)
+  const [category, setCategory] = useState("")
+  const [categories, setCategories] = useState([])
+  const [categoryConfig, setCategoryConfig] = useState({})
   const [newCategory, setNewCategory] = useState("")
-  const [newCategoryColor, setNewCategoryColor] = useState("#757575")
+  const [newCategoryColor, setNewCategoryColor] = useState("#9e9e9e")
   const [showNewCategory, setShowNewCategory] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+
+  // Fetch categories from backend
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get("http://127.0.0.1:5000/api/categories");
+      const categoriesData = response.data;
+      
+      // Create a mapping of category names to their colors
+      const config = {};
+      categoriesData.forEach(cat => {
+        config[cat.name] = { color: cat.color };
+      });
+      
+      setCategoryConfig(config);
+      setCategories(categoriesData.map(cat => cat.name));
+      
+      // Set default category to the first one if not set
+      if (categoriesData.length > 0 && !category) {
+        setCategory(categoriesData[0].name);
+      }
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Fetch categories when component mounts and when dialog opens
+  useEffect(() => {
+    if (open) {
+      fetchCategories();
+    }
+  }, [open]);
 
   // Reset form when dialog is closed
   useEffect(() => {
     if (!open) {
       setTitle("")
       setContent("")
-      setCategory("Home")
       setNewCategory("")
+      setNewCategoryColor("#9e9e9e")
       setShowNewCategory(false)
+    } else {
+      // Reset to first category when opening
+      if (categories.length > 0) {
+        setCategory(categories[0]);
+      }
     }
-  }, [open])
+  }, [open, categories])
 
   // Add new category
   const handleAddNewCategory = async () => {
@@ -47,17 +77,16 @@ const AddNote = ({open, onClose, onAddNote}) => {
         // Post the new category to the backend
         await axios.post("http://127.0.0.1:5000/api/categories", categoryData);
         
-        // Update local state if the API call is successful
-        const updatedCategories = [...categories, newCategory];
-        categoryConfig[newCategory] = { color: newCategoryColor };
-        setCategories(updatedCategories);
+        // Refresh categories from backend
+        await fetchCategories();
+        
+        // Set the new category as selected
         setCategory(newCategory);
         setNewCategory("");
-        setNewCategoryColor("#757575"); // Reset to default color
+        setNewCategoryColor("#9e9e9e");
         setShowNewCategory(false);
       } catch (error) {
         console.error("Error adding category:", error);
-        // Optionally, you could add error handling UI here
       }
     }
   }
@@ -255,7 +284,7 @@ const AddNote = ({open, onClose, onAddNote}) => {
             <Button onClick={onClose} variant="outlined" color="secondary">
               Cancel
             </Button>
-            <Button type="submit" variant="contained" color="primary" disabled={!title.trim() || !content.trim()}>
+            <Button type="submit" variant="contained" color="primary" disabled={!title.trim() || !content.trim() || isLoading}>
               Add Note
             </Button>
           </DialogActions>
