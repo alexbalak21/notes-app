@@ -11,6 +11,7 @@ const AddNote = ({open, onClose, onAddNote, onAddCategory, categories: propCateg
   const [newCategory, setNewCategory] = useState("")
   const [newCategoryColor, setNewCategoryColor] = useState("#9e9e9e")
   const [showNewCategory, setShowNewCategory] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   // Set default category when categories prop changes or dialog opens
   useEffect(() => {
@@ -89,17 +90,23 @@ const AddNote = ({open, onClose, onAddNote, onAddCategory, categories: propCateg
   // Submit form
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (title.trim() && content.trim()) {
+    if (title.trim() && content.trim() && !isLoading) {
+      setIsLoading(true)
       try {
+        // Find the category object to get its ID
+        const selectedCategory = propCategories.find(cat => cat.name === category);
+        
         const response = await axios.post(API_ENDPOINTS.NOTES, {
           title,
           description: content,
-          category: category,
+          category: selectedCategory ? selectedCategory.id : 1, // Default to 1 if category not found
         })
         onAddNote(response.data)
         onClose()
       } catch (error) {
         console.error("Error adding note:", error)
+      } finally {
+        setIsLoading(false)
       }
     }
   }

@@ -31,11 +31,18 @@ class Note(db.Model):
 
     def to_dict(self):
         # Get the category name using the relationship
-        category = Category.query.get(self.category)
+        try:
+            category = Category.query.get(self.category)
+            category_name = category.name if category else 'Uncategorized'
+            category_id = int(self.category) if str(self.category).isdigit() else 1
+        except:
+            category_name = 'Uncategorized'
+            category_id = 1
+            
         return {
             'id': self.id,
-            'category': category.name if category else 'Uncategorized',
-            'category_id': int(self.category),  # Convert to integer
+            'category': category_name,
+            'category_id': category_id,
             'title': self.title,
             'description': self.description,
             'updated_at': self.updated_at.isoformat() + 'Z'
