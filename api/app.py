@@ -1,11 +1,13 @@
 import os
 from datetime import datetime
-from flask import Flask, request, jsonify
+from flask import Flask, jsonify
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from model import Base
-from model.Note import Note
+from controller.note_controller import init_note_controller
+from controller.category_controller import init_category_controller
 from model.Category import Category
+from model.Note import Note
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -24,62 +26,10 @@ Base.metadata.create_all(engine)
 session_factory = sessionmaker(bind=engine)
 Session = scoped_session(session_factory)
 
-@app.route(f'{BASE_URL}/notes', methods=['GET'])
-def get_notes():
-    session = Session()
-    try:
-        notes = session.query(Note).all()
-        return jsonify([note.to_dict() for note in notes])
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-    finally:
-        session.close()
+# Initialize controllers
+init_note_controller(app, Session)
+init_category_controller(app, Session)
 
-# GET 1
-@app.route(f'{BASE_URL}/notes/<int:note_id>', methods=['GET'])
-def get_note(note_id):
-    session = Session()
-    try:
-        note = session.query(Note).get(note_id)
-        if note:
-            return jsonify(note.to_dict())
-        else:
-            return jsonify({"error": "Note not found"}), 404
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-    finally:
-        session.close()
-
-
-@app.route(f'{BASE_URL}/notes', methods=['POST'])
-def add_note():
-    session = Session()
-    try:
-        data = request.get_json()
-        
-        # Validate required fields
-        title = data.get('title', '').strip()
-        description = data.get('description', '').strip()
-        
-        if not title:
-            return jsonify({"error": "Title is required"}), 400
-        if not description:
-            return jsonify({"error": "Description is required"}), 400
-            
-        new_note = Note(
-            title=title,
-            description=description,
-            category_id=data.get("category_id", 1),
-            updated_on=datetime.utcnow()
-        )
-        session.add(new_note)
-        session.commit()
-        return jsonify(new_note.to_dict()), 201
-    except Exception as e:
-        session.rollback()
-        return jsonify({"error": str(e)}), 500
-    finally:
-        session.close()
 
 
 

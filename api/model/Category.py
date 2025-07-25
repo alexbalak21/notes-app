@@ -15,6 +15,5 @@ class Category(Base):
         return {
             'id': self.id,
             'name': self.name,
-            'color': self.color,
-            'notes_count': len(self.notes) if hasattr(self, 'notes') else 0
+            'color': self.color
         }
