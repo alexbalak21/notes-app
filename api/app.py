@@ -38,16 +38,23 @@ def get_notes():
 
 @app.route(f'{BASE_URL}/notes', methods=['POST'])
 def add_note():
-    data = request.get_json()
-    new_note = Note(
-        title=data.get("title", ""),
-        description=data.get("description", ""),
-        category_id=data.get("category_id", 1),
-        updated_on=datetime.utcnow()
-    )
-    session.add(new_note)
-    session.commit()
-    return jsonify(new_note.to_dict()), 201
+    session = Session()
+    try:
+        data = request.get_json()
+        new_note = Note(
+            title=data.get("title", ""),
+            description=data.get("description", ""),
+            category_id=data.get("category_id", 1),  # Changed from 'category' to 'category_id' to match the request
+            updated_on=datetime.utcnow()
+        )
+        session.add(new_note)
+        session.commit()
+        return jsonify(new_note.to_dict()), 201
+    except Exception as e:
+        session.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        session.close()
 
 
 
