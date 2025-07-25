@@ -35,6 +35,21 @@ def get_notes():
     finally:
         session.close()
 
+# GET 1
+@app.route(f'{BASE_URL}/notes/<int:note_id>', methods=['GET'])
+def get_note(note_id):
+    session = Session()
+    try:
+        note = session.query(Note).get(note_id)
+        if note:
+            return jsonify(note.to_dict())
+        else:
+            return jsonify({"error": "Note not found"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        session.close()
+
 
 @app.route(f'{BASE_URL}/notes', methods=['POST'])
 def add_note():
