@@ -30,21 +30,44 @@ class Note(db.Model):
     updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
     def to_dict(self):
-        # Get the category name using the relationship
+        """Convert the Note object to a dictionary representation.
+        
+        Returns:
+            dict: A dictionary containing the note's data including category information.
+        """
+        default_category = {
+            'id': 1,
+            'name': 'Uncategorized',
+            'color': '#9e9e9e'  # Default gray color
+        }
+        
         try:
+            # Get the category from the database
             category = Category.query.get(self.category)
-            category_name = category.name if category else 'Uncategorized'
-            category_id = int(self.category) if str(self.category).isdigit() else 1
-        except:
-            category_name = 'Uncategorized'
-            category_id = 1
             
+            if category:
+                category_data = category.to_dict()
+            else:
+                # If category not found, try to find it by name (for backward compatibility)
+                if isinstance(self.category, str):
+                    category = Category.query.filter_by(name=self.category).first()
+                    if category:
+                        category_data = category.to_dict()
+                    else:
+                        category_data = default_category
+                else:
+                    category_data = default_category
+        except Exception as e:
+            print(f"Error getting category for note {self.id}: {str(e)}")
+            category_data = default_category
+        
         return {
             'id': self.id,
-            'category': category_name,
-            'category_id': category_id,
             'title': self.title,
-            'description': self.description,
+            'description': self.description or '',
+            'category': category_data['name'],
+            'category_id': category_data['id'],
+            'category_color': category_data['color'],
             'updated_at': self.updated_at.isoformat() + 'Z'
         }
 
