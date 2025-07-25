@@ -10,6 +10,9 @@ from model.Category import Category
 # Initialize Flask app
 app = Flask(__name__)
 
+# Create a URL prefix for all routes
+BASE_URL = '/api'
+
 # Database configuration
 app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://{os.getenv('MYSQL_USER')}:{os.getenv('MYSQL_PASSWORD')}@{os.getenv('MYSQL_HOST')}:{os.getenv('MYSQL_PORT', '3306')}/{os.getenv('MYSQL_DB')}"
 engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
@@ -21,6 +24,34 @@ Base.metadata.create_all(engine)
 session_factory = sessionmaker(bind=engine)
 Session = scoped_session(session_factory)
 
+@app.route(f'{BASE_URL}/notes', methods=['GET'])
+def get_notes():
+    session = Session()
+    try:
+        notes = session.query(Note).all()
+        return jsonify([note.to_dict() for note in notes])
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        session.close()
+
+
+@app.route(f'{BASE_URL}/notes', methods=['POST'])
+def add_note():
+    data = request.get_json()
+    new_note = Note(
+        title=data.get("title", ""),
+        description=data.get("description", ""),
+        category_id=data.get("category_id", 1),
+        updated_on=datetime.utcnow()
+    )
+    session.add(new_note)
+    session.commit()
+    return jsonify(new_note.to_dict()), 201
+
+
+
+
 # Initialize one category and one note on startup
 def seed_data():
     session = Session()
@@ -31,6 +62,7 @@ def seed_data():
             category = Category(name="Misc", color="#673ab7")
             session.add(category)
             session.commit()
+            print("Category seeded successfully!")
 
             # Create a default note
             if session.query(Note).count() == 0:
@@ -38,10 +70,11 @@ def seed_data():
                     title="Welcome to Notes App",
                     description="This is your first note. Edit or delete it to get started!",
                     category_id=category.id,
-                    updated_at=datetime.utcnow()
+                    updated_on=datetime.utcnow()
                 )
                 session.add(note)
                 session.commit()
+                print("Note seeded successfully!")
     except Exception as e:
         session.rollback()
         print(f"Error seeding data: {e}")
@@ -52,17 +85,15 @@ def seed_data():
 with app.app_context():
     seed_data()
 
+import atexit
+
+def drop_tables():
+    print("\nDropping all database tables...")
+    Base.metadata.drop_all(engine)
+
 @app.teardown_appcontext
 def shutdown_session(exception=None):
     Session.remove()
 
-@app.route('/notes', methods=['GET'])
-def get_notes():
-    session = Session()
-    try:
-        notes = session.query(Note).all()
-        return jsonify([note.to_dict() for note in notes])
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-    finally:
-        session.close()
+# Register the drop_tables function to run on application exit
+atexit.register(drop_tables)

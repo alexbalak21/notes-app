@@ -13,7 +13,7 @@ class Note(Base):
     title = Column(String(100), nullable=False)
     description = Column(Text)
     category_id = Column(Integer, ForeignKey('categories.id'))
-    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    updated_on = Column(DateTime, nullable=False, default=datetime.utcnow)
     
     # Relationship with Category
     category = relationship('Category', back_populates='notes')
@@ -21,8 +21,8 @@ class Note(Base):
     def to_dict(self):
         return {
             'id': self.id,
-            'title': self.title,
+            'title': self.title,    
             'description': self.description,
             'category_id': self.category_id,
-            'updated_at': self.updated_at.isoformat() + 'Z'
+            'updated_on': self.updated_on.isoformat() + 'Z'
         }
