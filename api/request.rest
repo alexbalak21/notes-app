@@ -17,6 +17,20 @@ content-type: application/json
   "description" : "test description"
 }
 
+
+###PUT
+PUT http://127.0.0.1:5000/api/notes/2
+content-type: application/json
+
+{
+  "title" : "test update title",
+  "description" : "test update description"
+}
+
+###DELETE
+DELETE http://127.0.0.1:5000/api/notes/2
+content-type: application/json
+
 ###POST Category
 POST http://127.0.0.1:5000/api/categories
 content-type: application/json
