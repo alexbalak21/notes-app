@@ -1,11 +1,4 @@
-"""
-Sample data for the Notes application.
-This module contains sample notes and categories that can be used to populate the database.
-"""
-from datetime import datetime, timedelta
-
-# Sample categories
-SAMPLE_CATEGORIES = [
+DEMO_CATEGORIES = [
     {"name": "Misc", "color": "#9e9e9e"},        # Gray
     {"name": "Work", "color": "#2196f3"},        # Blue
     {"name": "Personal", "color": "#4caf50"},    # Green
@@ -14,70 +7,57 @@ SAMPLE_CATEGORIES = [
     {"name": "Important", "color": "#f44336"}   # Red
 ]
 
-# Sample notes with timestamps
-now = datetime.utcnow()
 
-# Sample notes with timestamps and category IDs
-# Category IDs correspond to the order in SAMPLE_CATEGORIES (1-based index)
-SAMPLE_NOTES = [
+
+DEMO_NOTES = [
     {
         "title": "Welcome to Notes App",
         "description": "This is your first note. You can edit or delete it.",
-        "category": 1,  # Misc
-        "created_at": now - timedelta(days=2)
+        "category_id": 1,  # Misc
     },
     {
         "title": "Project Ideas",
         "description": "Brainstorm ideas for the new project. Consider using React for the frontend.",
-        "category": 4,  # Ideas
-        "created_at": now - timedelta(days=1, hours=5)
+        "category_id": 4,  # Ideas
     },
     {
         "title": "Grocery List",
         "description": "- Milk\n- Eggs\n- Bread\n- Fruits",
-        "category": 5,  # Shopping
-        "created_at": now - timedelta(days=1)
+        "category_id": 5,  # Shopping
     },
     {
         "title": "Team Meeting Notes",
         "description": "Discussed project timeline and assigned tasks. Next meeting on Friday.",
-        "category": 2,  # Work
-        "created_at": now - timedelta(hours=12)
+        "category_id": 2,  # Work
     },
     {
         "title": "Personal Goals",
         "description": "1. Learn a new programming language\n2. Read 12 books this year\n3. Exercise 3x a week",
-        "category": 3,  # Personal
-        "created_at": now - timedelta(hours=6)
+        "category_id": 3,  # Personal
     },
     {
         "title": "Important Deadlines",
         "description": "- Project submission: 2025-08-15\n- Team presentation: 2025-08-20\n- Code review: 2025-08-22",
-        "category": "Important",
-        "created_at": now - timedelta(hours=3)
+        "category_id": 6,
     },
     {
         "title": "Book Recommendations",
         "description": "- Atomic Habits\n- Deep Work\n- The Pragmatic Programmer",
-        "category": "Personal",
-        "created_at": now - timedelta(hours=2)
+        "category_id": 3,
     },
     {
         "title": "Code Refactoring",
         "description": "Need to refactor the authentication module and add error handling.",
-        "category": "Work",
-        "created_at": now - timedelta(hours=1)
+        "category_id": 2,
     },
     {
         "title": "Weekend Plans",
         "description": "- Hiking on Saturday\n- Movie night\n- Meal prep for next week",
-        "category": "Personal",
-        "created_at": now - timedelta(minutes=30)
+        "category_id": 3,
     },
     {
         "title": "Learning Resources",
         "description": "Check out:\n- freeCodeCamp\n- MDN Web Docs\n- Real Python",
-        "category": "Ideas",
-        "created_at": now
+        "category_id": 4,
     }
 ]

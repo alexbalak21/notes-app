@@ -1,15 +1,28 @@
-class Note(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    category_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False)
-    title = db.Column(db.String(200), nullable=False, default='')
-    description = db.Column(db.Text, nullable=True)
-    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+from sqlalchemy import Column, Integer, String, Text, ForeignKey
+from sqlalchemy.orm import relationship
+from model.Category import Category
+from model import Base
+
+from datetime import datetime
+from sqlalchemy import DateTime
+
+class Note(Base):
+    __tablename__ = 'notes'
+
+    id = Column(Integer, primary_key=True)
+    title = Column(String(100), nullable=False)
+    description = Column(Text)
+    category_id = Column(Integer, ForeignKey('categories.id'))
+    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    
+    # Relationship with Category
+    category = relationship('Category', back_populates='notes')
 
     def to_dict(self):
         return {
             'id': self.id,
-            'category_id': self.category_id,
             'title': self.title,
             'description': self.description,
+            'category_id': self.category_id,
             'updated_at': self.updated_at.isoformat() + 'Z'
         }
