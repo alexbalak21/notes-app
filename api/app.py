@@ -41,10 +41,20 @@ def add_note():
     session = Session()
     try:
         data = request.get_json()
+        
+        # Validate required fields
+        title = data.get('title', '').strip()
+        description = data.get('description', '').strip()
+        
+        if not title:
+            return jsonify({"error": "Title is required"}), 400
+        if not description:
+            return jsonify({"error": "Description is required"}), 400
+            
         new_note = Note(
-            title=data.get("title", ""),
-            description=data.get("description", ""),
-            category_id=data.get("category_id", 1),  # Changed from 'category' to 'category_id' to match the request
+            title=title,
+            description=description,
+            category_id=data.get("category_id", 1),
             updated_on=datetime.utcnow()
         )
         session.add(new_note)
