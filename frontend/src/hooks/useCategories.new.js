@@ -65,26 +65,6 @@ export const useCategories = () => {
     }
   };
 
-  // Delete a category
-  const deleteCategory = async (categoryId) => {
-    try {
-      if (!categoryId) throw new Error('Category ID is required');
-      
-      await axios.delete(`${API_ENDPOINTS.CATEGORIES}/${categoryId}`);
-      
-      setCategories(prevCategories => 
-        prevCategories.filter(cat => cat.id !== categoryId)
-      );
-      
-      return true;
-    } catch (err) {
-      console.error('Error deleting category:', err);
-      const errorMsg = err.response?.data?.error || err.message;
-      setError(errorMsg);
-      throw new Error(errorMsg);
-    }
-  };
-
   // Update a category
   const updateCategory = async (categoryId, updates) => {
     try {
@@ -106,6 +86,26 @@ export const useCategories = () => {
       return updatedCategory;
     } catch (err) {
       console.error('Error updating category:', err);
+      const errorMsg = err.response?.data?.error || err.message;
+      setError(errorMsg);
+      throw new Error(errorMsg);
+    }
+  };
+
+  // Delete a category
+  const deleteCategory = async (categoryId) => {
+    try {
+      if (!categoryId) throw new Error('Category ID is required');
+      
+      await axios.delete(`${API_ENDPOINTS.CATEGORIES}/${categoryId}`);
+      
+      setCategories(prevCategories => 
+        prevCategories.filter(cat => cat.id !== categoryId)
+      );
+      
+      return true;
+    } catch (err) {
+      console.error('Error deleting category:', err);
       const errorMsg = err.response?.data?.error || err.message;
       setError(errorMsg);
       throw new Error(errorMsg);

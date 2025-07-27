@@ -16,7 +16,7 @@ import DeleteIcon from "@mui/icons-material/Delete"
 import CategoryChip from "./CategoryChip"
 import EditNote from "./EditNote"
 
-const Note = ({note, onUpdate, onDelete, categoryConfig = {}}) => {
+const Note = ({note, onUpdate, onDelete, categoryName, categoryColor}) => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
 
@@ -61,13 +61,13 @@ const Note = ({note, onUpdate, onDelete, categoryConfig = {}}) => {
           }}>
 
         <>
-          {note.category && (
+          {categoryName && (
               <Box sx={{ position: 'absolute', top: 12, right: 12 }}>
                 <CategoryChip
-                    category={note.category}
-                    color={categoryConfig[note.category]?.color}
+                    category={categoryName}
+                    color={categoryColor}
                     sx={{
-                      pointerEvents: 'none', // Make it non-interactive in the note
+                      pointerEvents: 'none',
                       backgroundColor: theme => theme.palette.mode === 'dark'
                           ? theme.palette.grey[800]
                           : theme.palette.grey[100],
@@ -80,7 +80,7 @@ const Note = ({note, onUpdate, onDelete, categoryConfig = {}}) => {
                 />
               </Box>
           )}
-          <Typography variant="h6" fontWeight="bold" gutterBottom sx={{wordBreak: "break-word", pr: note.category ? 6 : 0}}>
+          <Typography variant="h6" fontWeight="bold" gutterBottom sx={{wordBreak: "break-word", pr: categoryName ? 6 : 0}}>
             {note.title || "Untitled"}
           </Typography>
           <Box sx={{ flexGrow: 1, mt: 1 }}>
@@ -100,7 +100,7 @@ const Note = ({note, onUpdate, onDelete, categoryConfig = {}}) => {
         {/* Date and action buttons */}
         <Box display="flex" justifyContent="space-between" alignItems="center" mt={2}>
           <Typography variant="caption" color="text.secondary">
-            {new Date(note.updated_at).toLocaleDateString("en-US", {
+            {new Date(note.updated_on).toLocaleDateString("en-US", {
               month: "short",
               day: "numeric",
               year: "numeric",
@@ -162,12 +162,12 @@ const Note = ({note, onUpdate, onDelete, categoryConfig = {}}) => {
           onClose={() => setIsEditing(false)}
           note={note}
           onSave={handleSave}
-          categories={Object.entries(categoryConfig).map(([name, config]) => ({
-            id: name.toLowerCase(),
-            name,
-            color: config.color
-          }))}
-          categoryConfig={categoryConfig}
+          categories={categoryName ? [{
+            id: categoryName.toLowerCase(),
+            name: categoryName,
+            color: categoryColor
+          }] : []}
+          categoryConfig={{ [categoryName]: { color: categoryColor } }}
         />
       </Paper>
   )

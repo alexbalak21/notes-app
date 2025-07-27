@@ -44,36 +44,24 @@ const StyledChip = styled(Chip, {
   },
 }));
 
-// Default category colors if none provided
-const DEFAULT_CATEGORY_COLORS = {
-  'All': '#9e9e9e',
-  'Home': '#FFA726',
-  'Work': '#42A5F5',
-  'Personal': '#66BB6A',
-  'default': '#9E9E9E'
-};
-
 /**
  * CategoryChip Component
- * A styled chip component for displaying categories with optional color
+ * A styled chip component for displaying categories with a colored dot
  * 
  * @param {Object} props - Component props
- * @param {string} [props.category='All'] - Category name to display
+ * @param {string} props.category - Category name to display
+ * @param {string} props.color - Color for the category dot
  * @param {boolean} [props.selected=false] - Whether the chip is selected
  * @param {Function} [props.onClick] - Click handler for the chip
  * @param {Object} [props.sx={}] - Additional styles to apply
- * @param {string} [props.color] - Custom color for the category dot (overrides default)
  */
 const CategoryChip = ({ 
-  category = 'All', 
+  category, 
+  color,
   selected = false, 
   onClick,
-  sx = {},
-  color: customColor
+  sx = {}
 }) => {
-  // Use custom color if provided, otherwise use default from mapping, or fallback gray
-  const color = customColor || DEFAULT_CATEGORY_COLORS[category] || '#9E9E9E';
-  
   return (
     <StyledChip
       label={
@@ -83,12 +71,10 @@ const CategoryChip = ({
         </Box>
       }
       size="small"
-      // Remove the color prop to prevent MUI from trying to use theme colors
       onClick={onClick}
       selected={selected}
       sx={{
         ...sx,
-        // Apply background color directly in sx to avoid MUI color prop issues
         backgroundColor: selected ? color : undefined,
         '&:hover': {
           backgroundColor: selected 
@@ -96,14 +82,12 @@ const CategoryChip = ({
                 try {
                   return theme.palette.augmentColor({ color: { main: color } }).dark;
                 } catch {
-                  // Fallback if augmentColor fails
                   return color;
                 }
               }
             : undefined,
         },
       }}
-      colorprop={color} // Custom prop to pass to styled component
     />
   );
 };

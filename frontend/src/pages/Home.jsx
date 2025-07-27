@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Box, Button, Container, Grid } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 
@@ -16,7 +16,7 @@ const Home = () => {
   // State for UI
   const [isAddNoteOpen, setIsAddNoteOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedCategory, setSelectedCategory] = useState('all');
 
   // Data management with custom hooks
   const { 
@@ -30,7 +30,6 @@ const Home = () => {
 
   const { 
     categories, 
-    categoryConfig, 
     isLoading: isLoadingCategories, 
     error: categoriesError, 
     addCategory 
@@ -38,6 +37,12 @@ const Home = () => {
 
   // Filter notes based on search and category
   const filteredNotes = useNoteFilters(notes, { searchQuery, selectedCategory });
+  
+  // Helper function to get category by ID
+  const getCategoryById = useCallback((categoryId) => {
+    if (!categoryId || categoryId === 'all') return null;
+    return categories.find(cat => cat.id === categoryId || cat.id === parseInt(categoryId));
+  }, [categories]);
 
   // Handle note operations
   const handleAddNote = async (newNote) => {
@@ -84,8 +89,8 @@ const Home = () => {
     setSearchQuery(query);
   };
 
-  const handleCategoryChange = (category) => {
-    setSelectedCategory(category);
+  const handleCategoryChange = (categoryId) => {
+    setSelectedCategory(categoryId);
   };
 
   if (isLoadingNotes || isLoadingCategories) {
@@ -187,7 +192,8 @@ const Home = () => {
                   note={note} 
                   onUpdate={handleUpdateNote}
                   onDelete={handleDeleteNote}
-                  categoryConfig={categoryConfig}
+                  categoryName={getCategoryById(note.category_id)?.name}
+                  categoryColor={getCategoryById(note.category_id)?.color}
                 />
               </Grid>
             ))
@@ -199,7 +205,6 @@ const Home = () => {
           onClose={handleCloseAddNote}
           onAddNote={handleAddNote}
           categories={categories.filter(cat => cat.id !== 'all')}
-          categoryConfig={categoryConfig}
           onAddCategory={handleAddCategory}
         />
       </Container>
