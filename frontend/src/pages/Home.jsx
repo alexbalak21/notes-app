@@ -32,7 +32,8 @@ const Home = () => {
     categories, 
     isLoading: isLoadingCategories, 
     error: categoriesError, 
-    addCategory 
+    addCategory,
+    deleteCategory 
   } = useCategories();
 
   // Filter notes based on search and category
@@ -77,6 +78,19 @@ const Home = () => {
       return true;
     } catch (error) {
       console.error('Error adding category:', error);
+      throw error;
+    }
+  };
+
+  const handleDeleteCategory = async (categoryId) => {
+    try {
+      await deleteCategory(categoryId);
+      // If the deleted category was selected, reset to 'All' category
+      if (selectedCategory === categoryId) {
+        setSelectedCategory(0);
+      }
+    } catch (error) {
+      console.error('Error deleting category:', error);
       throw error;
     }
   };
@@ -134,6 +148,7 @@ const Home = () => {
           <SelectBar 
             selectedCategory={selectedCategory}
             onCategoryChange={handleCategoryChange}
+            onDeleteCategory={handleDeleteCategory}
             categories={categories}
           />
           <Button 

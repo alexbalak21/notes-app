@@ -1,4 +1,5 @@
-import { Chip, Box, styled } from "@mui/material";
+import { Chip, Box, styled, IconButton } from "@mui/material";
+import { Close } from "@mui/icons-material";
 
 // Dot for category indication
 const Dot = styled("span")(({ color }) => ({
@@ -12,8 +13,8 @@ const Dot = styled("span")(({ color }) => ({
 
 // Styled Category Chip
 const StyledChip = styled(Chip, {
-  shouldForwardProp: (prop) => prop !== 'selected',
-})(({ theme, selected }) => ({
+  shouldForwardProp: (prop) => prop !== 'selected' && prop !== 'deletable',
+})(({ theme, selected, deletable }) => ({
   fontWeight: selected ? 600 : 400,
   padding: '0 12px',
   borderRadius: theme.shape.borderRadius * 2,
@@ -29,9 +30,15 @@ const StyledChip = styled(Chip, {
     outlineOffset: '2px',
   },
   '& .MuiChip-label': {
-    padding: '4px 0',
+    padding: '4px 6px 4px 0',
     display: 'flex',
     alignItems: 'center',
+    position: 'relative',
+    paddingRight: (deletable) => deletable ? '24px' : '6px',
+  },
+  '&:hover .delete-button': {
+    visibility: 'visible',
+    opacity: 0.7,
   },
   // Default unselected state
   backgroundColor: theme.palette.mode === 'dark' 
@@ -60,19 +67,49 @@ const CategoryChip = ({
   color,
   selected = false, 
   onClick,
+  onDelete,
+  deletable = false,
   sx = {}
 }) => {
+  const handleDelete = (e) => {
+    e.stopPropagation();
+    if (onDelete) onDelete(e);
+  };
+
   return (
     <StyledChip
       label={
         <Box display="flex" alignItems="center">
           <Dot color={color} />
           {category}
+          {deletable && (
+            <IconButton 
+              size="small"
+              className="delete-button"
+              onClick={handleDelete}
+              sx={{
+                position: 'absolute',
+                right: -8,
+                visibility: 'hidden',
+                opacity: 0,
+                transition: 'opacity 0.2s',
+                padding: 0.5,
+                color: 'inherit',
+                '&:hover': {
+                  backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                  opacity: 1,
+                },
+              }}
+            >
+              <Close fontSize="inherit" />
+            </IconButton>
+          )}
         </Box>
       }
       size="small"
       onClick={onClick}
       selected={selected}
+      deletable={deletable}
       sx={{
         ...sx,
         backgroundColor: selected ? color : undefined,
