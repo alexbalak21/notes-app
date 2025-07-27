@@ -6,19 +6,30 @@ export default function App() {
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [categoryId, setCategoryId] = useState(1)
-  const [categories] = useState([
-    { id: 1, name: 'Work' },
-    { id: 2, name: 'Personal' },
-    { id: 3, name: 'Shopping' },
-    { id: 4, name: 'Other' }
-  ])
+  const [categories, setCategories] = useState([])
+
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get("/api/categories")
+      setCategories(response.data)
+      // Set default category to the first one if available
+      if (response.data.length > 0 && !categoryId) {
+        setCategoryId(response.data[0].id)
+      }
+    } catch (error) {
+      console.error("Error fetching categories:", error)
+    }
+  }
 
   const fetchNotes = async () => {
     try {
-      const response = await axios.get("/api/notes")
-      setNotes(response.data)
+      const [notesResponse] = await Promise.all([
+        axios.get("/api/notes"),
+        fetchCategories() // Fetch categories in parallel with notes
+      ])
+      setNotes(notesResponse.data)
     } catch (error) {
-      console.error("Error fetching notes:", error)
+      console.error("Error fetching data:", error)
     }
   }
 
