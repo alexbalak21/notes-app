@@ -1,15 +1,15 @@
 import { useMemo } from 'react';
 
-export const useNoteFilters = (notes, { searchQuery = '', selectedCategory = 'all' }) => {
+export const useNoteFilters = (notes, { searchQuery = '', selectedCategory = 0 }) => {
   return useMemo(() => {
     if (!Array.isArray(notes)) return [];
     
     return notes.filter(note => {
-      // Filter by category if not 'all'
-      if (selectedCategory !== 'all') {
-        // Check if the note's category_id matches the selected category ID
+      // Filter by category if not 'All' (id: 0)
+      if (selectedCategory !== 0) {
+        // Convert category ID to number if it's a string
         const categoryId = typeof selectedCategory === 'string' 
-          ? (selectedCategory === 'all' ? 'all' : parseInt(selectedCategory, 10))
+          ? parseInt(selectedCategory, 10)
           : selectedCategory;
           
         if (note.category_id !== categoryId) {

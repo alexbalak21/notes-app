@@ -7,7 +7,7 @@ const DEFAULT_CATEGORIES = [
 ];
 
 export const useCategories = () => {
-  const [categories, setCategories] = useState([{ id: 'all', name: 'All' }]);
+  const [categories, setCategories] = useState([{ id: 0, name: 'All', color: '#D3D3D3' }]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -19,7 +19,7 @@ export const useCategories = () => {
       
       if (Array.isArray(response.data)) {
         setCategories([
-          { id: 'all', name: 'All' },
+          { id: 0, name: 'All', color: '#D3D3D3' },
           ...response.data
         ]);
         setError(null);
@@ -28,7 +28,7 @@ export const useCategories = () => {
       throw new Error('Invalid categories data received');
     } catch (err) {
       console.error('Error fetching categories:', err);
-      setCategories([{ id: 'all', name: 'All' }, ...DEFAULT_CATEGORIES]);
+      setCategories([{ id: 0, name: 'All', color: '#D3D3D3' }, ...DEFAULT_CATEGORIES]);
       setError(err.response?.data?.error || err.message);
       return DEFAULT_CATEGORIES;
     } finally {

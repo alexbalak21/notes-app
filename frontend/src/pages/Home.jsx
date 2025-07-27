@@ -16,7 +16,7 @@ const Home = () => {
   // State for UI
   const [isAddNoteOpen, setIsAddNoteOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState(0);
 
   // Data management with custom hooks
   const { 
@@ -40,7 +40,7 @@ const Home = () => {
   
   // Helper function to get category by ID
   const getCategoryById = useCallback((categoryId) => {
-    if (!categoryId || categoryId === 'all') return null;
+    if (categoryId === 0) return { id: 0, name: 'All' };
     return categories.find(cat => cat.id === categoryId || cat.id === parseInt(categoryId));
   }, [categories]);
 
