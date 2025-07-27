@@ -31,41 +31,59 @@ init_note_controller(app, Session)
 init_category_controller(app, Session)
 
 
+# Import demo data
+from demo_data import DEMO_CATEGORIES, DEMO_NOTES
 
-
-
-# Initialize one category and one note on startup
-def seed_data():
+def seed_demo_data():
+    """Seed the database with demo data if it's empty"""
     session = Session()
     try:
-        # Check if any categories exist
-        if session.query(Category).count() == 0:
-            # Create a default category
-            category = Category(name="Misc", color="#673ab7")
-            session.add(category)
+        # Check if we need to seed data
+        category_count = session.query(Category).count()
+        note_count = session.query(Note).count()
+        
+        if category_count == 0 and note_count == 0:
+            print("\n Starting database seeding...")
+            
+            # Seed categories
+            print("Seeding categories...")
+            for cat_data in DEMO_CATEGORIES:
+                category = Category(name=cat_data["name"], color=cat_data["color"])
+                session.add(category)
             session.commit()
-            print("Category seeded successfully!")
-
-            # Create a default note
-            if session.query(Note).count() == 0:
+            print(f"Seeded {len(DEMO_CATEGORIES)} categories")
+            
+            # Seed notes
+            print("Seeding notes...")
+            for note_data in DEMO_NOTES:
                 note = Note(
-                    title="Welcome to Notes App",
-                    description="This is your first note. Edit or delete it to get started!",
-                    category_id=category.id,
-                    updated_on=datetime.utcnow()
+                    title=note_data["title"],
+                    description=note_data["description"],
+                    category_id=note_data["category_id"]
                 )
                 session.add(note)
-                session.commit()
-                print("Note seeded successfully!")
+            session.commit()
+            print(f"Seeded {len(DEMO_NOTES)} notes")
+            print("Database seeding completed!\n")
+            
+        else:
+            print(f"\n Database already contains {category_count} categories and {note_count} notes")
+            print("   No seeding required.\n")
+            
     except Exception as e:
         session.rollback()
         print(f"Error seeding data: {e}")
+        raise
     finally:
         session.close()
 
 # Create database tables and seed data
 with app.app_context():
-    seed_data()
+    # This will create tables if they don't exist
+    Base.metadata.create_all(engine)
+    
+    # Seed demo data if the database is empty
+    seed_demo_data()
 
 import atexit
 

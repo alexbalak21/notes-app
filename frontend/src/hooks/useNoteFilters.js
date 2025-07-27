@@ -7,12 +7,16 @@ export const useNoteFilters = (notes, { searchQuery = '', selectedCategory = 0 }
     return notes.filter(note => {
       // Filter by category if not 'All' (id: 0)
       if (selectedCategory !== 0) {
-        // Convert category ID to number if it's a string
-        const categoryId = typeof selectedCategory === 'string' 
+        // For other categories, ensure we're comparing numbers
+        const noteCategoryId = typeof note.category_id === 'string' 
+          ? parseInt(note.category_id, 10)
+          : note.category_id;
+          
+        const selectedId = typeof selectedCategory === 'string'
           ? parseInt(selectedCategory, 10)
           : selectedCategory;
           
-        if (note.category_id !== categoryId) {
+        if (noteCategoryId !== selectedId) {
           return false;
         }
       }

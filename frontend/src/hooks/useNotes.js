@@ -8,11 +8,16 @@ export const useNotes = () => {
   const [error, setError] = useState(null);
 
   // Process note data to ensure consistent format
-  const processNote = useCallback((note) => ({
-    ...note,
-    category_id: note.category_id || 1, // Default to Misc category if not specified
-    updated_on: note.updated_on || new Date().toISOString()
-  }), []);
+  const processNote = useCallback((note) => {
+    // Ensure category_id is a number and not 0 (0 is reserved for 'All' in the UI)
+    const categoryId = note.category_id && note.category_id !== 0 ? note.category_id : 1;
+    
+    return {
+      ...note,
+      category_id: categoryId,
+      updated_on: note.updated_on || new Date().toISOString()
+    };
+  }, []);
 
   // Fetch all notes
   const fetchNotes = useCallback(async () => {
@@ -43,9 +48,12 @@ export const useNotes = () => {
         throw new Error('Title and description are required');
       }
 
+      // Ensure we don't try to save with category_id 0 (reserved for 'All' in the UI)
+      const categoryId = newNote.category_id && newNote.category_id !== 0 ? newNote.category_id : 1;
+
       const noteToAdd = {
         ...newNote,
-        category_id: newNote.category_id || 1, // Default to Misc category
+        category_id: categoryId
       };
 
       const response = await axios.post(API_ENDPOINTS.NOTES, noteToAdd);
