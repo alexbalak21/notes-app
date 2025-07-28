@@ -1,6 +1,6 @@
-import {Box, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, IconButton, MenuItem, FormControl, InputLabel, Select, InputAdornment} from "@mui/material"
+import {Box, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, IconButton, MenuItem, FormControl, InputLabel, Select} from "@mui/material"
 import {Close as CloseIcon, Add as AddIcon, Clear as ClearIcon} from "@mui/icons-material"
-import {useState, useEffect, useRef} from "react";
+import {useState, useEffect} from "react";
 import axios from 'axios';
 import { API_ENDPOINTS } from '../config';
 
@@ -179,7 +179,7 @@ const AddNote = ({open, onClose, onAddNote, onAddCategory, categories: propCateg
                       fullWidth
                   >
                     {propCategories
-                      .filter(cat => cat.id !== 'all') // Exclude 'All' category
+                      .filter(cat => cat.id !== 0) // Exclude 'All' category
                       .map((cat) => (
                         <MenuItem key={cat.id} value={cat.name}>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>

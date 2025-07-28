@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { Box, Button, Container, Grid } from '@mui/material';
+import { Box, Button, Container, Grid, Dialog, DialogTitle, DialogContent, DialogActions, Typography } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 
 import AddNote from '../components/AddNote';
@@ -17,6 +17,8 @@ const Home = () => {
   const [isAddNoteOpen, setIsAddNoteOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(0);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [categoryToDelete, setCategoryToDelete] = useState(null);
 
   // Data management with custom hooks
   const { 
@@ -82,17 +84,36 @@ const Home = () => {
     }
   };
 
-  const handleDeleteCategory = async (categoryId) => {
+  const handleDeleteCategory = (categoryId) => {
+    const category = categories.find(cat => cat.id === categoryId);
+    if (!category) return;
+    
+    setCategoryToDelete(category);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!categoryToDelete) return;
+    
     try {
-      await deleteCategory(categoryId);
+      await deleteCategory(categoryToDelete.id);
       // If the deleted category was selected, reset to 'All' category
-      if (selectedCategory === categoryId) {
+      if (selectedCategory === categoryToDelete.id) {
         setSelectedCategory(0);
       }
+      setDeleteDialogOpen(false);
+      setCategoryToDelete(null);
     } catch (error) {
       console.error('Error deleting category:', error);
+      setDeleteDialogOpen(false);
+      setCategoryToDelete(null);
       throw error;
     }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteDialogOpen(false);
+    setCategoryToDelete(null);
   };
 
   // UI handlers
@@ -222,9 +243,42 @@ const Home = () => {
           categories={categories.filter(cat => cat.id !== 'all')}
           onAddCategory={handleAddCategory}
         />
+
+        {/* Delete Category Confirmation Dialog */}
+        <Dialog
+          open={deleteDialogOpen}
+          onClose={handleDeleteCancel}
+          maxWidth="xs"
+          fullWidth
+        >
+          <DialogTitle>Delete Category?</DialogTitle>
+          <DialogContent>
+            <Typography>
+              {categoryToDelete && `Are you sure you want to delete the category "${categoryToDelete.name}"? This action cannot be undone.`}
+            </Typography>
+          </DialogContent>
+          <DialogActions sx={{ p: 2 }}>
+            <Button
+              onClick={handleDeleteCancel}
+              variant="outlined"
+              color="inherit"
+              sx={{ textTransform: 'none' }}
+            >
+              No, Keep It
+            </Button>
+            <Button
+              onClick={handleDeleteConfirm}
+              variant="contained"
+              color="error"
+              sx={{ textTransform: 'none' }}
+            >
+              Yes, Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Container>
     </Box>
-  )
-}
+  );
+};
 
 export default Home;
