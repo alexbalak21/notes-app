@@ -202,8 +202,8 @@ const Home = () => {
             }}>
               {searchQuery && searchQuery.trim() !== '' 
                 ? `No notes found matching "${searchQuery}"`
-                : selectedCategory !== 'All'
-                  ? `No notes found in the "${selectedCategory}" category`
+                : selectedCategory !== 0
+                  ? `No notes found in the "${getCategoryById(selectedCategory)?.name || 'selected'}" category`
                   : 'No notes available. Create your first note to get started!'}
             </Box>
           ) : (
