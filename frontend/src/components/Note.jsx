@@ -11,8 +11,7 @@ import {
   Button,
   IconButton as MuiIconButton
 } from "@mui/material"
-import EditIcon from "@mui/icons-material/Edit"
-import DeleteIcon from "@mui/icons-material/Delete"
+import { FaEdit as EditIcon, FaTrash as DeleteIcon } from "react-icons/fa"
 import CategoryChip from "./CategoryChip"
 import EditNote from "./EditNote"
 

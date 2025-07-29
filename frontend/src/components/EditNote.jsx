@@ -14,7 +14,7 @@ import {
   MenuItem,
   FormHelperText
 } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
+import { FaTimes as CloseIcon } from "react-icons/fa";
 import Dot from "./Dot";
 
 

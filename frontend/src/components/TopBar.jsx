@@ -3,7 +3,7 @@ import Box from "@mui/material/Box"
 import Toolbar from "@mui/material/Toolbar"
 import SearchBar from "./SearchBar"
 import {Button, Container} from "@mui/material"
-import AddIcon from "@mui/icons-material/Add"
+import { FaPlus as AddIcon } from "react-icons/fa"
 import PropTypes from 'prop-types';
 
 export default function TopBar({ onAddClick }) {

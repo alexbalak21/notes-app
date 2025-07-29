@@ -1,8 +1,7 @@
 import * as React from "react"
 import {styled, alpha} from "@mui/material/styles"
 import InputBase from "@mui/material/InputBase"
-import SearchIcon from "@mui/icons-material/Search"
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import { FaSearch as SearchIcon, FaArrowRight as ArrowForwardIcon } from "react-icons/fa"
 import IconButton from "@mui/material/IconButton"
 
 // Styled container for the search bar

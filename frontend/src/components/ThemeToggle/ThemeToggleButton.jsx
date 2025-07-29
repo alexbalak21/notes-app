@@ -1,6 +1,5 @@
 import { IconButton, Tooltip } from '@mui/material';
-import Brightness4Icon from '@mui/icons-material/Brightness4';
-import Brightness7Icon from '@mui/icons-material/Brightness7';
+import { FaMoon as Brightness4Icon, FaSun as Brightness7Icon } from 'react-icons/fa';
 import { useTheme } from '../../contexts/ThemeContext';
 
 const ThemeToggleButton = () => {

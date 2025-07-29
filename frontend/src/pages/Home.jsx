@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { Box, Button, Container, Grid, Dialog, DialogTitle, DialogContent, DialogActions, Typography } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
+import { FaPlus as AddIcon } from 'react-icons/fa';
 
 import AddNote from '../components/AddNote';
 import Note from '../components/Note';

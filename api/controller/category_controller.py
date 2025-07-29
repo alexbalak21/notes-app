@@ -99,20 +99,43 @@ def update_category(category_id):
 def delete_category(category_id):
     session = Session()
     try:
+        data = request.get_json() or {}
+        target_category_id = data.get('targetCategoryId')
+        
         category = session.query(Category).get(category_id)
-        if category:
-            # Check if the category is in use by counting associated notes
-            note_count = session.query(Note).filter(Note.category_id == category_id).count()
-            if note_count > 0:
-                return jsonify({
-                    "error": "Cannot delete category that has associated notes. Please reassign or delete the notes first."
-                }), 400
-                
-            session.delete(category)
-            session.commit()
-            return jsonify({"message": "Category deleted successfully"}), 200
-        else:
+        if not category:
             return jsonify({"error": "Category not found"}), 404
+            
+        # Check if the category is in use by counting associated notes
+        note_count = session.query(Note).filter(Note.category_id == category_id).count()
+        
+        if note_count > 0:
+            if not target_category_id:
+                # Return note count to trigger the reassignment modal
+                return jsonify({
+                    "error": "Category has associated notes",
+                    "noteCount": note_count
+                }), 400
+            else:
+                # Validate target category exists and is different
+                if target_category_id == category_id:
+                    return jsonify({"error": "Cannot move notes to the same category"}), 400
+                    
+                target_category = session.query(Category).get(target_category_id)
+                if not target_category:
+                    return jsonify({"error": "Target category not found"}), 400
+                
+                # Reassign all notes to the target category
+                session.query(Note).filter(Note.category_id == category_id).update(
+                    {Note.category_id: target_category_id},
+                    synchronize_session=False
+                )
+        
+        # Delete the category
+        session.delete(category)
+        session.commit()
+        return jsonify({"message": "Category deleted successfully"}), 200
+        
     except Exception as e:
         session.rollback()
         return jsonify({"error": str(e)}), 500

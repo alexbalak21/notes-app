@@ -1,5 +1,5 @@
 import {Box, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, IconButton, MenuItem, FormControl, InputLabel, Select} from "@mui/material"
-import {Close as CloseIcon, Add as AddIcon, Clear as ClearIcon} from "@mui/icons-material"
+import { FaTimes as CloseIcon, FaPlus as AddIcon, FaTimes as ClearIcon } from "react-icons/fa"
 import {useState, useEffect} from "react";
 import axios from 'axios';
 import { API_ENDPOINTS } from '../config';
