@@ -9,15 +9,20 @@ import {
   DialogContent,
   DialogActions,
   Button,
-  IconButton as MuiIconButton
 } from "@mui/material"
-import { FaEdit as EditIcon, FaTrash as DeleteIcon } from "react-icons/fa"
+import { MdEdit, MdDelete } from "react-icons/md"
+import EditIcon from "@mui/icons-material/Edit"
+import DeleteIcon from "@mui/icons-material/Delete"
 import CategoryChip from "./CategoryChip"
 import EditNote from "./EditNote"
+import { useTheme } from "@mui/material/styles";
 
 const Note = ({note, onUpdate, onDelete, categoryName, categoryColor}) => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
+  const theme = useTheme();
+  const deleteColor = theme.palette.mode === 'dark' ? '#F44336' : '#D32F2F';
+
 
   const handleEdit = (event) => {
     event.stopPropagation()
@@ -111,13 +116,14 @@ const Note = ({note, onUpdate, onDelete, categoryName, categoryColor}) => {
                 onClick={handleEdit}
                 sx={{ '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' } }}
             >
-              <EditIcon fontSize="small" />
+              <MdEdit fontSize="large" />
             </IconButton>
             <IconButton
                 size="small"
                 onClick={handleDeleteClick}
                 sx={{ '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' } }}
             >
+              <MdDelete fontSize="20px" color={deleteColor} />
               <DeleteIcon fontSize="small" color="error" />
             </IconButton>
           </Box>
