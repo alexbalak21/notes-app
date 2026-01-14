@@ -9,24 +9,20 @@ A modern, full-stack notes application built with React, Vite, Material-UI, and 
   - Rich text formatting support
   - Character limit with counter
   - Responsive card layout
-  
 - 🏷️ **Categories**
   - Create custom categories with colors
   - Automatic 'All' category
   - Filter notes by category
   - Color-coded category indicators
-  
 - 🔍 **Search & Filter**
   - Real-time search across titles and content
   - Combine search with category filters
   - Clear search functionality
-  
 - 🎨 **UI/UX**
   - Clean, modern interface with Material-UI
   - Responsive design for all devices
   - Smooth animations and transitions
   - Intuitive category management
-  
 - ⚡ **Performance**
   - Optimized rendering with React hooks
   - Efficient state management
@@ -36,6 +32,7 @@ A modern, full-stack notes application built with React, Vite, Material-UI, and 
 ## 🛠️ Tech Stack
 
 **Frontend**
+
 - ⚛️ React 18 with Hooks
 - 🎨 Material-UI (MUI) v5
 - 🔄 React Router v6
@@ -45,6 +42,7 @@ A modern, full-stack notes application built with React, Vite, Material-UI, and 
 - 🔍 Custom hooks for data management
 
 **Backend**
+
 - 🐍 Python 3
 - 🌶️ Flask RESTful API
 - 🗄️ SQLite Database
@@ -52,11 +50,13 @@ A modern, full-stack notes application built with React, Vite, Material-UI, and 
 - 🏗️ RESTful endpoints for notes and categories
 
 **State Management**
+
 - React Context API
 - Custom hooks for data fetching
 - Optimistic UI updates
 
 **Development Tools**
+
 - 🛠️ npm / yarn package management
 - 🧪 ESLint for code quality
 - 🔍 React Developer Tools
@@ -75,17 +75,19 @@ A modern, full-stack notes application built with React, Vite, Material-UI, and 
 ### 🛠 Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/yourusername/notes-app.git
    cd notes-app
    ```
 
 2. **Set up the backend**
+
    ```bash
    cd backend
-   python -m venv venv
-   # On Windows: .\venv\Scripts\activate
-   # On macOS/Linux: source venv/bin/activate
+   python -m venv env
+   # On Windows: .\env\Scripts\activate
+   # On macOS/Linux: source env/bin/activate
    pip install -r requirements.txt
    ```
 
@@ -98,38 +100,35 @@ A modern, full-stack notes application built with React, Vite, Material-UI, and 
 ### 🏃 Running the Application
 
 1. **Start the backend server**
+
    ```bash
    cd backend
    # On Windows: .\venv\Scripts\activate
    # On macOS/Linux: source venv/bin/activate
-   python app.py
+   flask run
    ```
+
    The backend will be available at `http://localhost:5000`
 
 2. **Start the frontend development server** (in a new terminal)
+
    ```bash
    cd frontend
    npm run dev  # or yarn dev
    ```
+
    The frontend will be available at `http://localhost:3000`
 
 3. **Access the application**
    Open your browser and navigate to `http://localhost:3000`
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🤝 Contributing
-
-Contributions are welcome! Please read our [contributing guidelines](CONTRIBUTING.md) to get started.
-
 ## 📬 Contact
 
+n
 For any questions or suggestions, please open an issue or submit a pull request.
 
 ---
 
 <div align="center">
-  Made with ❤️ by [Your Name]
+  Made with ❤️ by [Alex Balak]
 </div>
