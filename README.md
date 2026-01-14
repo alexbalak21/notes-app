@@ -2,6 +2,10 @@
 
 A modern, full-stack notes application built with React, Vite, Material-UI, and Flask. Organize your notes with custom categories and colors in a clean, intuitive interface.
 
+### Screenshoot
+
+![App Screenshot](/project_images/screenshoot.png)
+
 ## ✨ Features
 
 - 📝 **Note Management**
