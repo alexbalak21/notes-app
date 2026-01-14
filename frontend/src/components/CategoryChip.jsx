@@ -47,9 +47,11 @@ const StyledChip = styled(Chip, {
   // Add shadow when selected
   boxShadow: selected ? theme.shadows[2] : "none",
 
+  // Unified hover state
   "&:hover": {
+    // Use slightly lighter/darker background on hover depending on theme
     backgroundColor: selected ? `${color} !important` : theme.palette.mode === "dark" ? theme.palette.grey[700] : theme.palette.grey[200],
-    // Slightly elevate shadow on hover when selected
+    // Slightly elevate shadow on hover when selected (stronger than default selected state)
     boxShadow: selected ? theme.shadows[4] : "none",
     transform: selected ? "translateY(-1px)" : "none",
     "& .delete-button": {
