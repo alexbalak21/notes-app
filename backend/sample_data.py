@@ -17,37 +17,36 @@ SAMPLE_CATEGORIES = [
 # Sample notes with timestamps
 now = datetime.utcnow()
 
-# Sample notes with timestamps and category IDs
-# Category IDs correspond to the order in SAMPLE_CATEGORIES (1-based index)
+# Sample notes with timestamps and category names
 SAMPLE_NOTES = [
     {
         "title": "Welcome to Notes App",
         "description": "This is your first note. You can edit or delete it.",
-        "category": 1,  # Misc
+        "category": "Misc",
         "created_at": now - timedelta(days=2)
     },
     {
         "title": "Project Ideas",
         "description": "Brainstorm ideas for the new project. Consider using React for the frontend.",
-        "category": 4,  # Ideas
+        "category": "Ideas",
         "created_at": now - timedelta(days=1, hours=5)
     },
     {
         "title": "Grocery List",
         "description": "- Milk\n- Eggs\n- Bread\n- Fruits",
-        "category": 5,  # Shopping
+        "category": "Shopping",
         "created_at": now - timedelta(days=1)
     },
     {
         "title": "Team Meeting Notes",
         "description": "Discussed project timeline and assigned tasks. Next meeting on Friday.",
-        "category": 2,  # Work
+        "category": "Work",
         "created_at": now - timedelta(hours=12)
     },
     {
         "title": "Personal Goals",
         "description": "1. Learn a new programming language\n2. Read 12 books this year\n3. Exercise 3x a week",
-        "category": 3,  # Personal
+        "category": "Personal",
         "created_at": now - timedelta(hours=6)
     },
     {

@@ -30,6 +30,8 @@ export const useNotes = () => {
       
       setNotes(processedNotes);
       setError(null);
+      console.log('Fetched notes:', processedNotes);
+      
       return processedNotes;
     } catch (err) {
       console.error('Error fetching notes:', err);
