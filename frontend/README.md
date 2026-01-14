@@ -2,6 +2,9 @@
 
 A modern, responsive notes application built with React, Vite, and Material-UI. This frontend application allows users to create, read, update, and delete notes with categories.
 
+### Screenshot
+![App Screenshot](../project_images/screenshoot.png)
+
 ## Features
 
 - 📝 Create and manage notes with titles and descriptions

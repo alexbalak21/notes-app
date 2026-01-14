@@ -4,6 +4,8 @@
 
 The Notes Application is a responsive, single-page application built with React and Material-UI. It allows users to create, view, edit, and delete notes with custom categories and colors. The application features a clean, modern UI with light/dark theme support.
 
+
+
 ## Application Architecture
 
 ### Component Hierarchy
