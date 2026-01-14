@@ -230,6 +230,7 @@ const Home = () => {
                   onDelete={handleDeleteNote}
                   categoryName={getCategoryById(note.category_id)?.name}
                   categoryColor={getCategoryById(note.category_id)?.color}
+                  categories={categories}
                 />
               </Grid>
             ))

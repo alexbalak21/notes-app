@@ -177,8 +177,19 @@ def get_note(note_id):
 @app.route('/api/notes', methods=['POST'])
 def add_note():
     data = request.get_json()
+    category_input = data.get("category_id")
+    
+    # Handle category as name or ID
+    if isinstance(category_input, str):
+        # Assume it's a category name
+        cat = Category.query.filter_by(name=category_input).first()
+        category_id = cat.id if cat else 1
+    else:
+        # Assume it's an ID
+        category_id = category_input or 1
+    
     new_note = Note(
-        category=data.get("category", "Misc"),
+        category=category_id,
         title=data.get("title", ""),
         description=data.get("description", ""),
         updated_at=datetime.utcnow()
@@ -206,8 +217,15 @@ def update_note(note_id):
     data = request.get_json()
     
     # Update the note fields if provided
-    if 'category' in data:
-        note.category = data['category']
+    if 'category_id' in data:
+        category_input = data['category_id']
+        if isinstance(category_input, str):
+            # Assume it's a category name
+            cat = Category.query.filter_by(name=category_input).first()
+            note.category = cat.id if cat else 1
+        else:
+            # Assume it's an ID
+            note.category = category_input
     if 'title' in data:
         note.title = data['title']
     if 'description' in data:

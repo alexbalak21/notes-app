@@ -36,10 +36,10 @@ const EditNote = ({
       setAvailableCategories(filtered);
       
       // Set default category if not set
-      if (!editedNote.category && filtered.length > 0) {
+      if (!editedNote.category_id && filtered.length > 0) {
         setEditedNote(prev => ({
           ...prev,
-          category: filtered[0].name
+          category_id: filtered[0].id
         }));
       }
     }
@@ -95,25 +95,29 @@ const EditNote = ({
             <Select
               labelId="category-select-label"
               id="category-select"
-              name="category"
-              value={editedNote.category || ''}
+              name="category_id"
+              value={editedNote.category_id || ''}
               label="Category"
               onChange={handleChange}
-              renderValue={(selected) => (
-                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                <Dot color={categoryConfig[selected]?.color || 'grey.500'} />  {selected}
-                </Box>
-              )}
+              renderValue={(selected) => {
+                const selectedCategory = availableCategories.find(cat => cat.id === selected);
+                return (
+                  <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                    <Dot color={selectedCategory?.color || 'grey.500'} />  
+                    {selectedCategory?.name || 'Unknown'}
+                  </Box>
+                );
+              }}
             >
               {availableCategories.map((category) => (
-                <MenuItem key={category.id} value={category.name}>
+                <MenuItem key={category.id} value={category.id}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
                     <Box 
                       sx={{
                         width: 12,
                         height: 12,
                         borderRadius: '50%',
-                        backgroundColor: categoryConfig[category.name]?.color || 'grey.500',
+                        backgroundColor: category.color || 'grey.500',
                         flexShrink: 0
                       }}
                     />

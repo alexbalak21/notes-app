@@ -99,7 +99,7 @@ const AddNote = ({open, onClose, onAddNote, onAddCategory, categories: propCateg
         const response = await axios.post(API_ENDPOINTS.NOTES, {
           title,
           description: content,
-          category: selectedCategory ? selectedCategory.id : 1, // Default to 1 if category not found
+          category_id: selectedCategory ? selectedCategory.id : 1, // Default to 1 if category not found
         })
         onAddNote(response.data)
         onClose()

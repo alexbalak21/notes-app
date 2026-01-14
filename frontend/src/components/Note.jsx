@@ -15,7 +15,7 @@ import CategoryChip from "./CategoryChip";
 import EditNote from "./EditNote";
 import {useTheme} from "@mui/material/styles";
 
-const Note = ({note, onUpdate, onDelete, categoryName, categoryColor}) => {
+const Note = ({note, onUpdate, onDelete, categoryName, categoryColor, categories = []}) => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const theme = useTheme();
@@ -160,18 +160,8 @@ const Note = ({note, onUpdate, onDelete, categoryName, categoryColor}) => {
         onClose={() => setIsEditing(false)}
         note={note}
         onSave={handleSave}
-        categories={
-          categoryName
-            ? [
-                {
-                  id: categoryName.toLowerCase(),
-                  name: categoryName,
-                  color: categoryColor,
-                },
-              ]
-            : []
-        }
-        categoryConfig={{[categoryName]: {color: categoryColor}}}
+        categories={categories}
+        categoryConfig={{}}
       />
     </Paper>
   );
