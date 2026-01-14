@@ -162,7 +162,19 @@ const AddNote = ({open, onClose, onAddNote, onAddCategory, categories: propCateg
                 variant="outlined"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                sx={{ mt: 0, mb: 2 }}
+                disabled={showNewCategory}
+                helperText={showNewCategory ? "Finish creating the category first" : ""}
+                sx={{ 
+                  mt: 0, 
+                  mb: 2,
+                  '& .MuiInputBase-root.Mui-disabled': {
+                    backgroundColor: '#f5f5f593',
+                    opacity: 0.6
+                  },
+                  '& .MuiFormHelperText-root': {
+                    color: 'rgb(25, 118, 210)'
+                  }
+                }}
             />
 
             {/* Category Selection Row */}
@@ -271,11 +283,20 @@ const AddNote = ({open, onClose, onAddNote, onAddCategory, categories: propCateg
                 variant="outlined"
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
+                disabled={showNewCategory}
+                helperText={showNewCategory ? "Finish creating the category first" : ""}
                 sx={{
                   '& .MuiInputBase-root': {
                     '& textarea': {
                       minHeight: '75px',
+                    },
+                    '&.Mui-disabled': {
+                      backgroundColor: '#f5f5f5',
+                      opacity: 0.6
                     }
+                  },
+                  '& .MuiFormHelperText-root': {
+                    color: 'rgb(25, 118, 210)'
                   }
                 }}
             />
@@ -284,7 +305,7 @@ const AddNote = ({open, onClose, onAddNote, onAddCategory, categories: propCateg
             <Button onClick={onClose} variant="outlined" color="secondary">
               Cancel
             </Button>
-            <Button type="submit" variant="contained" color="primary" disabled={!title.trim() || !content.trim() || isLoading}>
+            <Button type="submit" variant="contained" color="primary" disabled={!title.trim() || !content.trim() || isLoading || showNewCategory}>
               Add Note
             </Button>
           </DialogActions>
