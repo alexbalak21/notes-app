@@ -23,5 +23,6 @@ class NoteRepository:
         db.session.commit()
 
     @staticmethod
-    def update():
+    def update(note):
         db.session.commit()
+        return note
