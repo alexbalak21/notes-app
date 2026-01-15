@@ -2,7 +2,7 @@
 
 A modern, responsive notes application built with React, Vite, and Material-UI. This frontend application allows users to create, read, update, and delete notes with categories.
 
-# Notes App - Frontend
+### Notes App Live
 
 🌐 **Live App:** https://notes-app.alwaysdata.net/
 
