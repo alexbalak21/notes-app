@@ -44,7 +44,7 @@ export const useNotes = () => {
   }, [processNote]);
 
   // Add a new note
-  const addNote = async (newNote) => {
+  const addNote = useCallback(async (newNote) => {
     try {
       if (!newNote.title || !newNote.description) {
         throw new Error('Title and description are required');
@@ -61,6 +61,7 @@ export const useNotes = () => {
       const response = await axios.post(API_ENDPOINTS.NOTES, noteToAdd);
       const processedNote = processNote(response.data);
       
+      // Update the local state with the new note
       setNotes(prevNotes => [...prevNotes, processedNote]);
       setError(null);
       return processedNote;
@@ -68,9 +69,9 @@ export const useNotes = () => {
       console.error('Error adding note:', err);
       const errorMsg = err.response?.data?.error || err.message;
       setError(errorMsg);
-      throw new Error(errorMsg);
+      throw err; // Re-throw to be caught by the form
     }
-  };
+  }, [processNote]); // Add processNote to the dependency array
 
   // Update an existing note
   const updateNote = async (updatedNote) => {

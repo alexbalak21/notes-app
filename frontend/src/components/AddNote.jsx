@@ -12,6 +12,7 @@ const AddNote = ({open, onClose, onAddNote, onAddCategory, categories: propCateg
   const [newCategoryColor, setNewCategoryColor] = useState("#9e9e9e")
   const [showNewCategory, setShowNewCategory] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [formSubmitted, setFormSubmitted] = useState(false)
 
   // Set default category when categories prop changes or dialog opens
   useEffect(() => {
@@ -38,6 +39,7 @@ const AddNote = ({open, onClose, onAddNote, onAddCategory, categories: propCateg
       setNewCategory("");
       setNewCategoryColor("#9e9e9e");
       setShowNewCategory(false);
+      setFormSubmitted(false);
       
       // Set default category when opening
       if (propCategories.length > 0) {
@@ -89,24 +91,31 @@ const AddNote = ({open, onClose, onAddNote, onAddCategory, categories: propCateg
 
   // Submit form
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    if (title.trim() && content.trim() && !isLoading) {
-      setIsLoading(true)
+    e.preventDefault();
+    
+    if (isLoading) {
+      return; // Prevent multiple submissions
+    }
+    
+    if (title.trim() && content.trim()) {
+      setIsLoading(true);
+      
       try {
-        // Find the category object to get its ID
         const selectedCategory = propCategories.find(cat => cat.name === category);
-        
-        const response = await axios.post(API_ENDPOINTS.NOTES, {
+        const newNote = {
           title,
           description: content,
-          category_id: selectedCategory ? selectedCategory.id : 1, // Default to 1 if category not found
-        })
-        onAddNote(response.data)
-        onClose()
+          category_id: selectedCategory ? selectedCategory.id : 1,
+        };
+        
+        // Let the parent component handle the API call and state update
+        await onAddNote(newNote);
+        onClose();
       } catch (error) {
-        console.error("Error adding note:", error)
+        console.error("Error adding note:", error);
+        // Error is already handled by the useNotes hook
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
     }
   }
@@ -297,8 +306,13 @@ const AddNote = ({open, onClose, onAddNote, onAddCategory, categories: propCateg
             <Button onClick={onClose} variant="outlined" color="secondary">
               Cancel
             </Button>
-            <Button type="submit" variant="contained" color="primary" disabled={!title.trim() || !content.trim() || isLoading || showNewCategory}>
-              Add Note
+            <Button 
+              type="submit" 
+              variant="contained" 
+              color="primary" 
+              disabled={!title.trim() || !content.trim() || isLoading || showNewCategory}
+            >
+              {isLoading ? 'Adding...' : 'Add Note'}
             </Button>
           </DialogActions>
         </form>
