@@ -7,21 +7,19 @@ from datetime import datetime
 note_bp = Blueprint("notes", __name__, url_prefix="/api/notes")
 
 
-@note_bp.route("", methods=["GET"])
-@note_bp.route("/", methods=["GET"])
+@note_bp.get("/")
 def get_notes():
     notes = NoteRepository.get_all()
     return jsonify([n.to_dict() for n in notes])
 
 
-@note_bp.route("<int:note_id>", methods=["GET"])
+@note_bp.get("<int:note_id>")
 def get_note(note_id):
     note = NoteRepository.get_by_id(note_id)
     return jsonify(note.to_dict()) if note else (jsonify({"error": "Not found"}), 404)
 
 
-@note_bp.route("", methods=["POST"])
-@note_bp.route("/", methods=["POST"])
+@note_bp.post("/")
 def add_note():
     data = request.get_json()
     category_input = data.get("category_id")
@@ -43,7 +41,7 @@ def add_note():
     return jsonify(note.to_dict()), 201
 
 
-@note_bp.route("<int:note_id>", methods=["PUT"])
+@note_bp.put("<int:note_id>")
 def update_note(note_id):
     note = NoteRepository.get_by_id(note_id)
     if not note:
@@ -75,7 +73,7 @@ def update_note(note_id):
     return jsonify(note.to_dict()), 200
 
 
-@note_bp.route("<int:note_id>", methods=["DELETE"])
+@note_bp.delete("<int:note_id>")
 def delete_note(note_id):
     note = NoteRepository.get_by_id(note_id)
     if not note:

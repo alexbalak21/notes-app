@@ -7,7 +7,7 @@ category_bp = Blueprint("categories", __name__, url_prefix="/api/categories")
 
 
 # CREATE CATEGORY
-@category_bp.route("", methods=["POST"])
+@category_bp.post("")
 def create_category():
     data = request.get_json()
 
@@ -30,14 +30,14 @@ def create_category():
 
 
 # GET ALL CATEGORIES
-@category_bp.route("", methods=["GET"])
+@category_bp.get("")
 def get_categories():
     categories = CategoryRepository.get_all()
     return jsonify([c.to_dict() for c in categories])
 
 
 # DELETE CATEGORY
-@category_bp.route("", methods=["DELETE"])
+@category_bp.delete("<int:category_id>")
 def delete_category(category_id):
     category = CategoryRepository.get_by_id(category_id)
 
