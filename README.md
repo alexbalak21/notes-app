@@ -2,6 +2,11 @@
 
 A modern, full-stack notes application built with React, Vite, Material-UI, and Flask. Organize your notes with custom categories and colors in a clean, intuitive interface.
 
+### Notes App Live
+
+🌐 **Live App:** https://notes-app.alwaysdata.net/
+
+
 ### Screenshoot
 
 ![App Screenshot](/project_images/screenshoot.png)
