@@ -9,14 +9,14 @@ CREATE TABLE category (
 
 CREATE TABLE note (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    category INT NOT NULL,
+    category INT NULL,
     title VARCHAR(200) NOT NULL DEFAULT '',
     description TEXT NULL,
     updated_at DATETIME NOT NULL,
     CONSTRAINT fk_note_category
         FOREIGN KEY (category)
         REFERENCES category(id)
-        ON DELETE RESTRICT
+        ON DELETE SET NULL
         ON UPDATE CASCADE
 );
 
@@ -87,3 +87,28 @@ INSERT INTO note (category, title, description, updated_at) VALUES
 (4, 'Learning Resources',
  'Check out:\n- freeCodeCamp\n- MDN Web Docs\n- Real Python',
  NOW());
+
+DELIMITER $$
+
+CREATE TRIGGER prevent_misc_delete
+BEFORE DELETE ON category
+FOR EACH ROW
+BEGIN
+    IF OLD.id = 1 THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Cannot delete the default Misc category (id = 1)';
+    END IF;
+END;
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE TRIGGER before_category_delete
+BEFORE DELETE ON category
+FOR EACH ROW
+BEGIN
+    UPDATE note SET category = 1 WHERE category = OLD.id;
+END;
+
+DELIMITER ;

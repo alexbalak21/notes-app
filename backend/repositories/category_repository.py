@@ -1,6 +1,7 @@
 from models.category import Category
 from extensions import db
 
+
 class CategoryRepository:
 
     @staticmethod
@@ -20,3 +21,8 @@ class CategoryRepository:
         db.session.add(category)
         db.session.commit()
         return category
+
+    @staticmethod
+    def delete(category):
+        db.session.delete(category)
+        db.session.commit()
