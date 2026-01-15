@@ -23,24 +23,6 @@ const StyledChip = styled(Chip, {
   transition: "all 0.2s ease-in-out",
   height: "auto",
   position: "relative",
-  "&:hover": {
-    transform: selected ? "translateY(-1px)" : "none",
-    boxShadow: selected ? theme.shadows[1] : "none",
-    "& .delete-button": {
-      opacity: 0.7,
-    },
-  },
-  "&:focus-visible": {
-    outline: `2px solid ${theme.palette.primary.main}`,
-    outlineOffset: "2px",
-  },
-  "& .MuiChip-label": {
-    padding: "0",
-    display: "flex",
-    alignItems: "center",
-    whiteSpace: "nowrap",
-    overflow: "visible",
-  },
   // Background color handling
   backgroundColor: selected ? `${color} !important` : theme.palette.mode === "dark" ? theme.palette.grey[800] : theme.palette.grey[100],
 
@@ -57,6 +39,17 @@ const StyledChip = styled(Chip, {
     "& .delete-button": {
       opacity: 0.7,
     },
+  },
+  "&:focus-visible": {
+    outline: `2px solid ${theme.palette.primary.main}`,
+    outlineOffset: "2px",
+  },
+  "& .MuiChip-label": {
+    padding: "0",
+    display: "flex",
+    alignItems: "center",
+    whiteSpace: "nowrap",
+    overflow: "visible",
   },
 }))
 
