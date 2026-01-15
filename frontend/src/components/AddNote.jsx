@@ -167,12 +167,8 @@ const AddNote = ({open, onClose, onAddNote, onAddCategory, categories: propCateg
                 sx={{ 
                   mt: 0, 
                   mb: 2,
-                  '& .MuiInputBase-root.Mui-disabled': {
-                    backgroundColor: '#f5f5f593',
-                    opacity: 0.6
-                  },
                   '& .MuiFormHelperText-root': {
-                    color: 'rgb(25, 118, 210)'
+                    color: 'red'
                   }
                 }}
             />
@@ -289,14 +285,10 @@ const AddNote = ({open, onClose, onAddNote, onAddCategory, categories: propCateg
                   '& .MuiInputBase-root': {
                     '& textarea': {
                       minHeight: '75px',
-                    },
-                    '&.Mui-disabled': {
-                      backgroundColor: '#f5f5f5',
-                      opacity: 0.6
                     }
                   },
                   '& .MuiFormHelperText-root': {
-                    color: 'rgb(25, 118, 210)'
+                    color: 'red'
                   }
                 }}
             />
