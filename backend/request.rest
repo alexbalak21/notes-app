@@ -22,7 +22,7 @@ POST http://127.0.0.1:5000/api/categories
 content-type: application/json
 
 {
-  "name": "Work",
+  "name": "Test",
   "color": "#2196f3"
 }
 
