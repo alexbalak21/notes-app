@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from models.category import Category
 from repositories.category_repository import CategoryRepository
-from extensions import db
+from sqlalchemy.exc import SQLAlchemyError
 from cors import handle_categories_options
 
 category_bp = Blueprint("categories", __name__, url_prefix="/api/categories")
@@ -41,3 +41,22 @@ def create_category():
 def get_categories():
     categories = CategoryRepository.get_all()
     return jsonify([c.to_dict() for c in categories])
+
+
+# DELETE CATEGORY
+@category_bp.delete("/<int:category_id>")
+def delete_category(category_id):
+    category = CategoryRepository.get_by_id(category_id)
+
+    if not category:
+        return jsonify({"error": "Category not found"}), 404
+
+    try:
+        CategoryRepository.delete(category)
+        return jsonify({"message": "Category deleted successfully"}), 200
+
+    except SQLAlchemyError as e:
+        # MySQL trigger errors appear here
+        error_msg = str(e.orig)
+
+        return jsonify({"error": error_msg}), 400
