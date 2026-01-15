@@ -4,7 +4,6 @@ from extensions import db
 from controllers.note_controller import note_bp
 from controllers.category_controller import category_bp
 from controllers.index_controller import index_bp
-from cors import init_cors
 import os
 
 load_dotenv()
@@ -25,7 +24,6 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     db.init_app(app)
-    init_cors(app)
 
     app.register_blueprint(note_bp)
     app.register_blueprint(category_bp)

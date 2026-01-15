@@ -2,15 +2,8 @@ from flask import Blueprint, request, jsonify
 from models.category import Category
 from repositories.category_repository import CategoryRepository
 from sqlalchemy.exc import SQLAlchemyError
-from cors import handle_categories_options
 
 category_bp = Blueprint("categories", __name__, url_prefix="/api/categories")
-
-
-# OPTIONS (CORS preflight)
-@category_bp.route("", methods=["OPTIONS"])
-def categories_options():
-    return handle_categories_options()
 
 
 # CREATE CATEGORY
