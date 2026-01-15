@@ -27,7 +27,8 @@ const Home = () => {
     error: notesError, 
     addNote, 
     updateNote, 
-    deleteNote 
+    deleteNote,
+    refreshNotes
   } = useNotes();
 
   const { 
@@ -97,6 +98,8 @@ const Home = () => {
     
     try {
       await deleteCategory(categoryToDelete.id);
+      // Refetch notes to update any that were in the deleted category
+      await refreshNotes();
       // If the deleted category was selected, reset to 'All' category
       if (selectedCategory === categoryToDelete.id) {
         setSelectedCategory(0);
