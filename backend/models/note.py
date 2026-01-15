@@ -13,19 +13,10 @@ class Note(db.Model):
                            default=datetime.utcnow)
 
     def to_dict(self):
-        category_obj = Category.query.get(self.category)
-        category_data = category_obj.to_dict() if category_obj else {
-            "id": 1,
-            "name": "Misc",
-            "color": "#9e9e9e"
-        }
-
         return {
             "id": self.id,
             "title": self.title,
             "description": self.description or "",
-            "category": category_data["name"],
-            "category_id": category_data["id"],
-            "category_color": category_data["color"],
-            "updated_at": self.updated_at.isoformat() + "Z"
+            "category_id": self.category,
+            "updated_on": self.updated_at.isoformat() + "Z" if self.updated_at else None
         }

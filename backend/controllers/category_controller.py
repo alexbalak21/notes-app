@@ -37,7 +37,7 @@ def get_categories():
 
 
 # DELETE CATEGORY
-@category_bp.delete("/<int:category_id>")
+@category_bp.route("", methods=["DELETE"])
 def delete_category(category_id):
     category = CategoryRepository.get_by_id(category_id)
 
