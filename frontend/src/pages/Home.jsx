@@ -19,6 +19,8 @@ const Home = () => {
   const [selectedCategory, setSelectedCategory] = useState(0);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState(null);
+  const [errorModalOpen, setErrorModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   // Data management with custom hooks
   const { 
@@ -108,15 +110,21 @@ const Home = () => {
       setCategoryToDelete(null);
     } catch (error) {
       console.error('Error deleting category:', error);
+      setErrorMessage(error.message || 'Failed to delete category');
+      setErrorModalOpen(true);
       setDeleteDialogOpen(false);
       setCategoryToDelete(null);
-      throw error;
     }
   };
 
   const handleDeleteCancel = () => {
     setDeleteDialogOpen(false);
     setCategoryToDelete(null);
+  };
+
+  const handleErrorModalClose = () => {
+    setErrorModalOpen(false);
+    setErrorMessage('');
   };
 
   // UI handlers
@@ -136,19 +144,6 @@ const Home = () => {
       <Container maxWidth="lg">
         <Box sx={{ my: 4, textAlign: 'center' }}>
           <p>Loading...</p>
-        </Box>
-      </Container>
-    );
-  }
-
-  // Show error state if any
-  if (notesError || categoriesError) {
-    return (
-      <Container maxWidth="lg">
-        <Box sx={{ my: 4, color: 'error.main' }}>
-          <p>Error loading data. Please try again later.</p>
-          {notesError && <p>Notes error: {notesError}</p>}
-          {categoriesError && <p>Categories error: {categoriesError}</p>}
         </Box>
       </Container>
     );
@@ -277,6 +272,33 @@ const Home = () => {
               sx={{ textTransform: 'none' }}
             >
               Yes, Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Error Modal Dialog */}
+        <Dialog
+          open={errorModalOpen}
+          onClose={handleErrorModalClose}
+          maxWidth="sm"
+          fullWidth
+        >
+          <DialogTitle sx={{ color: 'error.main', fontWeight: 'bold' }}>
+            Error
+          </DialogTitle>
+          <DialogContent>
+            <Typography sx={{ mt: 1, color: 'text.primary' }}>
+              {errorMessage}
+            </Typography>
+          </DialogContent>
+          <DialogActions sx={{ p: 2 }}>
+            <Button
+              onClick={handleErrorModalClose}
+              variant="contained"
+              color="error"
+              sx={{ textTransform: 'none' }}
+            >
+              OK
             </Button>
           </DialogActions>
         </Dialog>
