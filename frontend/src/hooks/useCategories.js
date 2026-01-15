@@ -50,11 +50,19 @@ export const useCategories = () => {
       
       const newCategory = response.data;
       
-      setCategories(prevCategories => [
-        ...prevCategories.filter(cat => cat.id !== 'all'),
-        newCategory,
-        { id: 'all', name: 'All' }
-      ]);
+      setCategories(prevCategories => {
+        // Filter out any existing 'All' category and the new category (in case of update)
+        const filtered = prevCategories.filter(cat => 
+          cat.id !== 'all' && cat.id !== newCategory.id
+        );
+        
+        // Return with 'All' at the beginning, then existing categories, then the new/updated category
+        return [
+          { id: 0, name: 'All', color: '#D3D3D3' },
+          ...filtered,
+          newCategory
+        ];
+      });
       
       return newCategory;
     } catch (err) {
