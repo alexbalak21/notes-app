@@ -168,7 +168,7 @@ const AddNote = ({open, onClose, onAddNote, onAddCategory, categories: propCateg
                   mt: 0, 
                   mb: 2,
                   '& .MuiFormHelperText-root': {
-                    color: 'red'
+                    color: 'salmon !important'
                   }
                 }}
             />
@@ -288,7 +288,7 @@ const AddNote = ({open, onClose, onAddNote, onAddCategory, categories: propCateg
                     }
                   },
                   '& .MuiFormHelperText-root': {
-                    color: 'red'
+                    color: 'salmon !important'
                   }
                 }}
             />
