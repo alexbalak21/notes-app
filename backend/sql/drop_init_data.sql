@@ -1,12 +1,14 @@
 DROP TABLE IF EXISTS note;
 DROP TABLE IF EXISTS category;
 
+-- CATEGORY TABLE
 CREATE TABLE category (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
     color VARCHAR(7) NOT NULL
 );
 
+-- NOTE TABLE
 CREATE TABLE note (
     id INT AUTO_INCREMENT PRIMARY KEY,
     category INT NULL,
@@ -20,25 +22,7 @@ CREATE TABLE note (
         ON UPDATE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS category (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(50) NOT NULL,
-    color VARCHAR(7) NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS note (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    category INT NOT NULL,
-    title VARCHAR(200) NOT NULL DEFAULT '',
-    description TEXT NULL,
-    updated_at DATETIME NOT NULL,
-    CONSTRAINT fk_note_category
-        FOREIGN KEY (category)
-        REFERENCES category(id)
-        ON DELETE RESTRICT
-        ON UPDATE CASCADE
-);
-
+-- SAMPLE DATA
 INSERT INTO category (name, color) VALUES
 ('Misc', '#9e9e9e'),
 ('Work', '#2196f3'),
@@ -88,8 +72,8 @@ INSERT INTO note (category, title, description, updated_at) VALUES
  'Check out:\n- freeCodeCamp\n- MDN Web Docs\n- Real Python',
  NOW());
 
+-- TRIGGER: Prevent deleting category 1
 DELIMITER $$
-
 CREATE TRIGGER prevent_misc_delete
 BEFORE DELETE ON category
 FOR EACH ROW
@@ -98,17 +82,15 @@ BEGIN
         SIGNAL SQLSTATE '45000'
             SET MESSAGE_TEXT = 'Cannot delete the default Misc category (id = 1)';
     END IF;
-END;
-
+END$$
 DELIMITER ;
 
+-- TRIGGER: Move notes to category 1 before deleting any other category
 DELIMITER $$
-
 CREATE TRIGGER before_category_delete
 BEFORE DELETE ON category
 FOR EACH ROW
 BEGIN
     UPDATE note SET category = 1 WHERE category = OLD.id;
-END;
-
+END$$
 DELIMITER ;
