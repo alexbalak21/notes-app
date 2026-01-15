@@ -39,3 +39,45 @@ def add_note():
 
     NoteRepository.create(note)
     return jsonify(note.to_dict()), 201
+
+
+@note_bp.put("/<int:note_id>")
+def update_note(note_id):
+    note = NoteRepository.get_by_id(note_id)
+    if not note:
+        return jsonify({"error": "Not found"}), 404
+
+    data = request.get_json()
+
+    # Update category
+    if "category_id" in data:
+        category_input = data["category_id"]
+        if isinstance(category_input, str):
+            cat = CategoryRepository.get_by_name(category_input)
+            note.category = cat.id if cat else 1
+        else:
+            note.category = category_input or 1
+
+    # Update title
+    if "title" in data:
+        note.title = data["title"]
+
+    # Update description
+    if "description" in data:
+        note.description = data["description"]
+
+    # Update timestamp
+    note.updated_at = datetime.utcnow()
+
+    NoteRepository.update()
+    return jsonify(note.to_dict()), 200
+
+
+@note_bp.delete("/<int:note_id>")
+def delete_note(note_id):
+    note = NoteRepository.get_by_id(note_id)
+    if not note:
+        return jsonify({"error": "Not found"}), 404
+
+    NoteRepository.delete(note)
+    return jsonify({"message": "Note deleted successfully"}), 200

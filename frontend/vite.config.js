@@ -12,4 +12,5 @@ export default defineConfig({
       },
     },
   },
+   build: {outDir: "../backend/templates", emptyOutDir: true},
 })

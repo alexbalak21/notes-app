@@ -13,7 +13,7 @@ POST http://127.0.0.1:5000/api/categories
 content-type: application/json
 
 {
-  "name": "Uncategorized",
+  "name": "Misc",
   "color": "#9e9e9e"
 }
 
@@ -25,6 +25,26 @@ content-type: application/json
   "category": 1,
   "title" : "Welcome to Notes App",
   "description" : "Welcome to Notes App. This is your first note. You can edit or delete it, and start adding your own notes!"
+}
+
+###POST 2
+POST http://127.0.0.1:5000/api/notes
+content-type: application/json
+
+{
+  "category": 1,
+  "title" : "Test Note",
+  "description" : "It is a test note for testing purposes."
+}
+
+###PUT 2
+PUT http://127.0.0.1:5000/api/notes/2
+content-type: application/json
+
+{
+  "category": 1,
+  "title" : "Updated Note Title",
+  "description" : "This is the updated description of the note."
 }
 
 
