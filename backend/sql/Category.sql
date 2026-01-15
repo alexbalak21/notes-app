@@ -1,0 +1,6 @@
+CREATE TABLE category (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    color VARCHAR(7) NOT NULL
+);
+

@@ -1,0 +1,6 @@
+SET FOREIGN_KEY_CHECKS=0;
+
+TRUNCATE table notes;
+TRUNCATE table categories;
+
+SET FOREIGN_KEY_CHECKS=1;
