@@ -51,12 +51,12 @@ export const useCategories = () => {
       const newCategory = response.data;
       
       setCategories(prevCategories => {
-        // Filter out any existing 'All' category and the new category (in case of update)
+        // Ensure we do not duplicate the 'All' category (id 0) and avoid duplicating the new category
         const filtered = prevCategories.filter(cat => 
-          cat.id !== 'all' && cat.id !== newCategory.id
+          cat.id !== 0 && cat.id !== newCategory.id
         );
-        
-        // Return with 'All' at the beginning, then existing categories, then the new/updated category
+
+        // Prepend a single 'All' category, followed by existing categories, then the newly added category
         return [
           { id: 0, name: 'All', color: '#D3D3D3' },
           ...filtered,

@@ -17,9 +17,9 @@ const AddNote = ({open, onClose, onAddNote, onAddCategory, categories: propCateg
   // Set default category when categories prop changes or dialog opens
   useEffect(() => {
     if (propCategories.length > 0) {
-      // Filter out the 'All' category
-      const validCategories = propCategories.filter(cat => cat.id !== 'all');
-      
+      // Filter out the 'All' category (id 0)
+      const validCategories = propCategories.filter(cat => cat.id !== 0);
+
       // If no category is selected or the selected category doesn't exist in the list
       if (!category || !validCategories.some(cat => cat.name === category)) {
         // Select the first available category
@@ -43,7 +43,7 @@ const AddNote = ({open, onClose, onAddNote, onAddCategory, categories: propCateg
       
       // Set default category when opening
       if (propCategories.length > 0) {
-        const firstCategory = propCategories.find(cat => cat.id !== 'all');
+        const firstCategory = propCategories.find(cat => cat.id !== 0);
         if (firstCategory) {
           setCategory(firstCategory.name);
         }
